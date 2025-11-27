@@ -1,4 +1,4 @@
-{{-- resources/views/dig/progresses.blade.php --}}
+{{-- resources/views/semua/progresses.blade.php --}}
 <!doctype html>
 <html lang="id">
 <head>
@@ -11,27 +11,28 @@
     html { scrollbar-gutter: stable; }
     body { overflow-x: hidden; }
 
-    /* Scrollbar (seragam palet DIG) */
     .scroll-thin::-webkit-scrollbar{width:6px;height:6px}
     .scroll-thin::-webkit-scrollbar-thumb{background:#c89898;border-radius:9999px}
     .scroll-thin::-webkit-scrollbar-track{background:transparent}
 
-    /* Matikan animasi CSS saat first paint (dipakai di JS dengan .no-transition) */
     .no-transition, .no-transition * { transition: none !important; }
   </style>
 </head>
 
 <body class="min-h-screen bg-white text-gray-900">
 @php
-  /* ======== DATA USER, ROLE, AVATAR, KONTAINER, & RUTE DINAMIS ======== */
   $me   = $me ?? auth()->user()?->fresh();
   $role = $me?->role;
-  $roleLabel = $role === 'it' ? 'IT' : ($role === 'digital_banking' ? 'DIG' : ($role === 'kepala_divisior' ? 'Kepala Divisi' : 'User'));
+  $roleLabel = $role === 'it'
+      ? 'IT'
+      : ($role === 'digital_banking'
+          ? 'DIG'
+          : ($role === 'kepala_divisi' ? 'Kepala Divisi' : 'User'));
 
   $initial = urlencode(mb_substr($me?->name ?? $me?->username ?? 'U', 0, 1));
   $fallbackSvg = "data:image/svg+xml;utf8,".rawurlencode(
     '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">'.
-    '<rect width="100%" height="100%" rx="12" ry="12" fill="#7A1C1C"/>' .
+    '<rect width="100%" height="100%" rx="12" ry="12" fill="#7A1C1C"/>'.
     '<text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-family="Arial" font-size="28" fill="#fff">'.$initial.'</text>'.
     '</svg>'
   );
@@ -39,10 +40,8 @@
   $extraKey   = $me?->avatar_cache_key ?? ($me?->updated_at?->timestamp ?? time());
   $avatarUrl  = $rawUrl ? ($rawUrl.(str_contains($rawUrl,'?') ? '&' : '?').'ck='.$extraKey) : $fallbackSvg;
 
-  // Satu sumber layout container (sama persis)
   $container = 'max-w-6xl mx-auto w-full px-5 md:px-6 lg:px-8';
 
-  // ===== Rute dashboard dinamis per role
   $homeRouteName = match ($role) {
       'it'              => (\Route::has('it.dashboard') ? 'it.dashboard' : null),
       'kepala_divisi'   => (\Route::has('kd.dashboard') ? 'kd.dashboard' : null),
@@ -51,12 +50,10 @@
   };
   $homeUrl = $homeRouteName ? route($homeRouteName) : url('/');
 
-  // Active-state untuk dashboard
   $isDashboardActive = $homeRouteName
       ? request()->routeIs($homeRouteName)
       : url()->current() === $homeUrl;
 
-  // Notifikasi dinamis per role
   $notifRoute = match ($role) {
       'it'              => 'it.notifications',
       'kepala_divisi'   => 'kd.notifications',
@@ -64,8 +61,7 @@
   };
 @endphp
 
-{{-- ================== MINI SIDEBAR (RAIL) ================== --}}
-@php $iconColor = '#7A1C1C'; @endphp
+{{-- MINI SIDEBAR --}}
 <aside id="miniSidebar"
   class="hidden md:flex fixed inset-y-0 left-0 z-40 w-16 bg-white border-r shadow-xl flex-col items-center justify-between py-4">
   <div class="flex flex-col items-center gap-6">
@@ -74,7 +70,6 @@
       <img src="{{ asset('images/dki.png') }}" class="h-6 w-auto object-contain" alt="Logo" />
     </button>
 
-    {{-- DASHBOARD (dinamis per role) --}}
     <a href="{{ $homeUrl }}"
        class="p-2 rounded-lg {{ $isDashboardActive ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
        title="Dashboard" aria-label="Dashboard">
@@ -84,7 +79,6 @@
       </svg>
     </a>
 
-    {{-- PROGRESS --}}
     <a href="{{ route('semua.progresses') }}"
        class="p-2 rounded-lg {{ request()->routeIs('semua.progresses*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]'}}"
        title="Progress" aria-label="Progress">
@@ -94,7 +88,6 @@
       </svg>
     </a>
 
-    {{-- NOTIFIKASI (dinamis per role) --}}
     @if(Route::has($notifRoute))
       <a href="{{ route($notifRoute) }}"
          class="p-2 rounded-lg {{ request()->routeIs($notifRoute.'*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]'}}"
@@ -106,7 +99,6 @@
       </a>
     @endif
 
-    {{-- ARSIP --}}
     <a href="{{ route('semua.arsip') }}"
        class="p-2 rounded-lg {{ request()->routeIs('semua.arsip*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]'}}"
        title="Arsip" aria-label="Arsip">
@@ -126,7 +118,9 @@
       </svg>
     </a>
 
-    <a href="/logout" class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
+ <a href="/logout"
+   data-confirm-logout="true"
+   class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
         <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
         <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
@@ -135,7 +129,6 @@
   </div>
 </aside>
 
-{{-- ============== SIDEBAR PENUH (drawer) ============== --}}
 <div id="sidebarBackdrop" class="hidden fixed inset-0 z-40 bg-black/30 md:hidden"></div>
 
 <aside id="sidebar"
@@ -143,10 +136,8 @@
          bg-white border-r shadow-xl flex flex-col">
 
   @php
-    // ulangi variabel avatar untuk blade section ini jika diperlukan
-    $me = $me ?? auth()->user()->fresh();
+    $me  = $me ?? auth()->user()->fresh();
     $role = $me?->role;
-    $roleLabel = $role === 'it' ? 'IT' : ($role === 'digital_banking' ? 'DIG' : ($role === 'supervisor' ? 'Supervisor' : 'User'));
   @endphp
 
   <div class="px-5 pt-5 pb-4 border-b bg-white">
@@ -163,7 +154,6 @@
   </div>
 
   <nav class="flex-1 overflow-y-auto py-3 text-sm font-medium text-gray-700">
-    {{-- DASHBOARD (dinamis per role) --}}
     <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-3 mb-1">Dashboard</div>
     <a href="{{ $homeUrl }}"
        class="flex items-center gap-3 px-5 py-2.5 rounded-xl
@@ -175,7 +165,6 @@
       <span>Dashboard</span>
     </a>
 
-    {{-- PROGRESS --}}
     <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Project</div>
     <a href="{{ route('semua.progresses') }}"
        class="flex items-center gap-3 px-5 py-2.5 rounded-xl
@@ -187,7 +176,6 @@
       <span>Project</span>
     </a>
 
-    {{-- NOTIFIKASI (dinamis per role) --}}
     <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Notifikasi</div>
     @php $notifHas = \Route::has($notifRoute); @endphp
     @if($notifHas)
@@ -202,7 +190,6 @@
       </a>
     @endif
 
-    {{-- ARSIP --}}
     <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Arsip</div>
     <a href="{{ route('semua.arsip') }}"
        class="flex items-center gap-3 px-5 py-2.5 rounded-xl
@@ -215,19 +202,21 @@
     </a>
   </nav>
 
-  {{-- FOOTER MENU --}}
   <div class="mt-6 mb-9 px-3 space-y-1 text-sm text-gray-900 bg-white">
     <a href="{{ route('account.setting') }}"
        class="flex items-center gap-3 px-3 py-2 rounded-xl
               {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'text-gray-800 hover:bg-[#FFF2F2]' }}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 00-1.874.77l-1.537-1.1a.916.916 0 00-1.14.08L4.02 4.684a.916.916 0 00-.08 1.14l1.1 1.537a8.523 8.523 0 00-.77 1.874l-1.71.303a.916.916 0 00-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 00.77 1.874l-1.1 1.537a.916.916 0 00.08 1.14l1.199 1.199a.916.916 0 00 1.14.08l1.537-1.1a8.523 8.523 0 0 0 1.874.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
+        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1a8.523 8.523 0 0 0 1.874.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
       </svg>
       <span>Pengaturan Akun</span>
     </a>
 
-    <a href="/logout" class="flex items-center gap-3 px-3 py-2 rounded-xl text-gray-800 hover:bg-[#FFF2F2]">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="currentColor" viewBox="0 0 24 24">
+      <a href="/logout"
+       data-confirm-logout="true"
+       class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
+       title="Log Out" aria-label="Log Out">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
         <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
         <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
       </svg>
@@ -236,12 +225,10 @@
   </div>
 </aside>
 
-{{-- ================== WRAPPER & HEADER ================== --}}
 <div id="pageWrapper" class="transition-all duration-300 ml-0">
   <header class="sticky top-0 z-30 bg-[#8D2121] backdrop-blur">
     <div class="{{ $container }} py-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
-        {{-- Tombol open sidebar (mobile) --}}
         <button id="sidebarOpenBtn"
                 class="p-2 rounded-xl border border-red-200 text-red-50 bg-transparent/0 hover:bg-red-50/10 md:hidden"
                 title="Buka Sidebar" aria-label="Buka Sidebar">
@@ -266,10 +253,7 @@
     </div>
   </header>
 
-  {{-- ================== KONTEN ================== --}}
   <div class="{{ $container }}">
-
-    {{-- FILTER BAR --}}
     @php
       $q = request('status','all');        // all | in_progress | meet | not_meet
       $mine = request('mine','0');         // '1' atau '0'
@@ -311,7 +295,6 @@
       </div>
     @endif
 
-    {{-- ===== LIST PROJECT ===== --}}
     @php $hasAny = false; @endphp
     @forelse ($projects as $project)
       @php
@@ -348,10 +331,8 @@
         }
         $realization = count($latestPercents) ? (int) round(array_sum($latestPercents) / max(count($latestPercents), 1)) : 0;
 
-        // Ring
         $size=88; $stroke=10; $r=$size/2-$stroke; $circ=2*M_PI*$r; $off=$circ*(1-$realization/100);
 
-        // Status label (badge kiri atas)
         if ($isFinalizedByDIG) {
           $statusText  = $isMeet ? 'Project Selesai, Memenuhi' : 'Project Selesai, Tidak Memenuhi';
           $statusBg    = $isMeet ? '#DCFCE7' : '#FEE2E2';
@@ -374,9 +355,7 @@
              })();
       @endphp
 
-      {{-- ===== KARTU PROJECT ===== --}}
-      <section class="mt-5 rounded-2xl border-2 border-[#7A1C1C] bg-[#white] p-5">
-        {{-- HEADER KARTU --}}
+      <section class="mt-5 rounded-2xl border-2 border-[#7A1C1C] bg-white p-5">
         <div class="flex flex-wrap items-center justify-between gap-2">
           <span class="inline-flex items-center rounded-full px-3 py-1 text-[12px] font-semibold"
                 style="background: {{ $statusBg }}; color: {{ $statusColor }};">
@@ -408,9 +387,7 @@
           @endif
         </div>
 
-        {{-- RING + INFO DETAIL --}}
         <div class="mt-3 grid md:grid-cols-[auto,1fr,auto] items-start gap-4">
-          {{-- Ring realisasi --}}
           <div class="flex items-center">
             <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 {{ $size }} {{ $size }}">
               <circle cx="{{ $size/2 }}" cy="{{ $size/2 }}" r="{{ $r }}" stroke="#E9D0D0" stroke-width="{{ $stroke }}" fill="none" opacity=".9"/>
@@ -421,7 +398,6 @@
             </svg>
           </div>
 
-          {{-- Kolom teks --}}
           <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-1 text-sm">
             <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
               <span class="text-gray-700 font-medium">Nama Project</span><span>:</span>
@@ -441,7 +417,6 @@
             </div>
           </div>
 
-          {{-- CTA kanan --}}
           <div class="flex items-start gap-2 justify-end">
             <a href="{{ route('projects.edit', $project->id) }}"
                class="p-2 rounded-lg bg-white/60 hover:bg-white border" title="Edit Project">
@@ -449,8 +424,9 @@
                 <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM22.61 5.64c.39-.39.39-1.02 0-1.41l-2.83-2.83a.9959.9959 0 0 0-1.41 0L16.13 3.04l3.75 3.75 2.73-2.73z"/>
               </svg>
             </a>
-            <form action="{{ route('projects.destroy', $project->id) }}" method="POST"
-                  onsubmit="return confirm('Yakin ingin menghapus project ini? Aksi ini tidak bisa dibatalkan.');">
+           <form action="{{ route('projects.destroy', $project->id) }}" method="POST"
+      data-confirm-delete="true"
+      data-message="Yakin ingin menghapus project ini? Aksi ini tidak bisa dibatalkan.">
               @csrf @method('DELETE')
               <button type="submit" class="p-2 rounded-lg bg-white/60 hover:bg-white border" title="Hapus Project">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
@@ -461,7 +437,6 @@
           </div>
         </div>
 
-        {{-- ===== LAMPIRAN PROJECT (LIST) – FULL WIDTH DI BAWAH INFO ===== --}}
         @if ($project->attachments && $project->attachments->isNotEmpty())
           <div class="mt-3">
             <div class="text-xs font-semibold text-gray-700 mb-1">Lampiran</div>
@@ -486,21 +461,26 @@
             </div>
           </div>
         @endif
-        {{-- ===== /LAMPIRAN PROJECT (LIST) ===== --}}
 
-        {{-- TOMBOL TAMBAH PROGRESS --}}
-        <div class="mt-3 flex justify-end">
+        <div class="mt-4 flex justify-end">
           <button type="button"
-                  class="btn-toggle-progress inline-flex items-center gap-2 rounded-xl bg-[#7A1C1C] text-white px-3 py-2 text-sm shadow hover:opacity-95"
-                  data-target="progressForm-{{ $project->id }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M11 11V5h2v6h6v2H13v6h-2v-6H5v-2h6z"/>
-            </svg>
-            Tambah Progress
+              data-target="progressForm-{{ $project->id }}"
+              @if($isFinalizedByDIG)
+                  disabled
+                  title="Project sudah difinalisasi, progress baru tidak dapat ditambahkan."
+                  class="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm shadow bg-[#7A1C1C]/40 text-white cursor-not-allowed opacity-60"
+              @else
+                  class="btn-toggle-progress inline-flex items-center gap-2 rounded-xl bg-[#7A1C1C] text-white px-3 py-2 text-sm shadow"
+              @endif
+          >
+              <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
+                  fill="currentColor">
+                  <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
+              </svg>
+              Tambah Progress
           </button>
         </div>
 
-        {{-- FORM TAMBAH PROGRESS --}}
         <div id="progressForm-{{ $project->id }}" class="hidden mt-3 rounded-xl bg-white p-4 border border-[#E7C9C9]">
           <div class="font-semibold mb-2">Tambah Progress untuk Project ini</div>
           <form method="POST" action="{{ route('projects.progresses.store', $project->id) }}"
@@ -522,7 +502,6 @@
           </form>
         </div>
 
-        {{-- DAFTAR PROGRESS --}}
         <div class="mt-4">
           <div class="scroll-thin grid md:grid-cols-2 gap-4 max-h-[280px] overflow-y-auto pr-1">
             @forelse($project->progresses as $pr)
@@ -560,8 +539,10 @@
                         onclick="document.getElementById('editProgress-{{ $pr->id }}').classList.toggle('hidden')">
                         Edit
                       </button>
-                      <form method="POST" action="{{ route('progresses.destroy', $pr->id) }}"
-                            onsubmit="return confirm('Hapus progress ini?');">
+                        <form method="POST"
+      action="{{ route('progresses.destroy', $pr->id) }}"
+      data-confirm-delete="true"
+      data-message="Hapus progress ini?">
                         @csrf @method('DELETE')
                         <button class="px-3 py-1.5 text-xs rounded-lg border bg-white/70 hover:bg-white">
                           Hapus
@@ -590,7 +571,6 @@
                   </div>
                 </div>
 
-                {{-- Edit progress inline --}}
                 <div id="editProgress-{{ $pr->id }}" class="hidden mt-3">
                   <form method="POST" action="{{ route('progresses.update', $pr->id) }}"
                         class="grid grid-cols-1 md:grid-cols-5 gap-2 bg-white/70 rounded-xl p-3 border">
@@ -615,7 +595,6 @@
                   </form>
                 </div>
 
-                {{-- Update & Konfirmasi --}}
                 <div class="mt-3">
                   <form method="POST" action="{{ route('progresses.updates.store', $pr->id) }}" class="flex flex-wrap gap-3 items-center">
                     @csrf
@@ -664,7 +643,6 @@
           </div>
         </div>
 
-        {{-- CTA BAWAH KANAN --}}
         <div class="mt-4 flex justify-end">
           <a href="{{ route('dig.projects.show', $project->id) }}"
              class="inline-flex items-center gap-2 rounded-[12px] border border-[#7A1C1C] px-4 py-2 text-sm font-semibold text-[#7A1C1C] bg-white hover:bg-[#FFF2F2]">
@@ -686,11 +664,80 @@
     @endif
   </div>
 </div>
+         {{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
+    <div id="confirmLogoutModal"
+         class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+                        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-semibold">Konfirmasi Logout</div>
+                    <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
+                </div>
+            </div>
+            <div class="px-4 py-4 text-sm text-gray-700">
+                Yakin ingin logout dari akun ini?
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+                <button type="button"
+                        id="cancelLogoutBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                    Batal
+                </button>
+                <button type="button"
+                        id="confirmLogoutBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
 
-{{-- ================== SCRIPT (disamakan dengan Notifikasi DIG) ================== --}}
+    {{-- ===== MODAL KONFIRMASI HAPUS (PROJECT / PROGRESS) ===== --}}
+    <div id="confirmDeleteModal"
+         class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#7A1C1C] text-white">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                         viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 15h2v2h-2zm0-8h2v6h-2z"/>
+                        <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10
+                                 10-4.49 10-10S17.51 2 12 2zm0 18
+                                 c-4.41 0-8-3.59-8-8s3.59-8 8-8
+                                 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-semibold">Konfirmasi Hapus</div>
+                    <div class="text-xs text-white/80">Aksi ini tidak bisa dibatalkan.</div>
+                </div>
+            </div>
+            <div class="px-4 py-4 text-sm text-gray-700" id="confirmDeleteMessage">
+                Yakin ingin menghapus data ini?
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+                <button type="button"
+                        id="cancelDeleteBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                    Batal
+                </button>
+                <button type="button"
+                        id="confirmDeleteBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
 <script>
   const sidebar      = document.getElementById('sidebar');
-  const sidebarOpen  = document.getElementById('sidebarOpenBtn'); // mobile
+  const sidebarOpen  = document.getElementById('sidebarOpenBtn');
   const sidebarClose = document.getElementById('sidebarCloseBtn');
   const sbBackdrop   = document.getElementById('sidebarBackdrop');
   const pageWrapper  = document.getElementById('pageWrapper');
@@ -780,7 +827,6 @@
   window.addEventListener('resize', syncOnResize);
   firstPaint();
 
-  // Toggle form "Tambah Progress" per project
   document.querySelectorAll('.btn-toggle-progress').forEach(btn => {
     btn.addEventListener('click', () => {
       const id = btn.getAttribute('data-target');
@@ -789,5 +835,114 @@
     });
   });
 </script>
+ <script>
+        (function () {
+            let pendingLogoutHref = null;
+            let pendingDeleteForm = null;
+
+            const logoutModal = document.getElementById('confirmLogoutModal');
+            const deleteModal = document.getElementById('confirmDeleteModal');
+            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
+
+            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+            function openModal(modal) {
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeModal(modal) {
+                if (!modal) return;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            // ====== LOGOUT HANDLER ======
+            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    pendingLogoutHref = this.getAttribute('href');
+                    openModal(logoutModal);
+                });
+            });
+
+            confirmLogoutBtn?.addEventListener('click', function () {
+                if (pendingLogoutHref) {
+                    window.location.href = pendingLogoutHref;
+                }
+            });
+
+            cancelLogoutBtn?.addEventListener('click', function () {
+                pendingLogoutHref = null;
+                closeModal(logoutModal);
+            });
+
+            // Klik di luar card = tutup modal logout
+            logoutModal?.addEventListener('click', function (e) {
+                if (e.target === logoutModal) {
+                    pendingLogoutHref = null;
+                    closeModal(logoutModal);
+                }
+            });
+
+            // ====== DELETE HANDLER (project / progress) ======
+            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    pendingDeleteForm = this;
+
+                    const msg = this.getAttribute('data-message');
+                    if (msg && deleteMsgEl) {
+                        deleteMsgEl.textContent = msg;
+                    }
+
+                    openModal(deleteModal);
+                });
+            });
+
+            confirmDeleteBtn?.addEventListener('click', function () {
+                if (pendingDeleteForm) {
+                    const formToSubmit = pendingDeleteForm;
+                    pendingDeleteForm = null;
+                    closeModal(deleteModal);
+                    formToSubmit.submit();
+                }
+            });
+
+            cancelDeleteBtn?.addEventListener('click', function () {
+                pendingDeleteForm = null;
+                closeModal(deleteModal);
+            });
+
+            // Klik di luar card = tutup modal delete
+            deleteModal?.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
+                    pendingDeleteForm = null;
+                    closeModal(deleteModal);
+                }
+            });
+
+            // ESC key untuk nutup modal (kalau ada yang kebuka)
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
+                        pendingLogoutHref = null;
+                        closeModal(logoutModal);
+                    }
+                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
+                        pendingDeleteForm = null;
+                        closeModal(deleteModal);
+                    }
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

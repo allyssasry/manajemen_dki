@@ -350,7 +350,7 @@
                         Batal
                     </a>
                     <button type="submit"
-                        class="w-[140px] h-[40px] inline-flex items-center justify-center rounded-full border-2 border-[#7A1C1C] bg-[#E2B9B9] hover:bg-[#D9AFAF] text-sm font-semibold text-black">
+                        class="w-[140px] h-[40px] inline-flex items-center justify-center rounded-full border-2 border-[#7A1C1C] bg-[#8D2121] hover:bg-[#8D2121]/80 text-sm font-semibold text-white">
                         Simpan
                     </button>
                 </div>

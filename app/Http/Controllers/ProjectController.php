@@ -93,17 +93,17 @@ class ProjectController extends Controller
         }
 
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'digital_banking_id' => ['required', 'exists:users,id'],
-            'developer_id' => ['required', 'exists:users,id'],
-            'progresses' => ['required', 'array', 'min:1'],
-            'progresses.*.name' => ['required', 'string', 'max:255'],
+            'name'                => ['required', 'string', 'max:255'],
+            'description'         => ['nullable', 'string'],
+            'digital_banking_id'  => ['required', 'exists:users,id'],
+            'developer_id'        => ['required', 'exists:users,id'],
+            'progresses'          => ['required', 'array', 'min:1'],
+            'progresses.*.name'   => ['required', 'string', 'max:255'],
             'progresses.*.start_date' => ['required', 'date'],
-            'progresses.*.end_date' => ['required', 'date', 'after_or_equal:progresses.*.start_date'],
+            'progresses.*.end_date'   => ['required', 'date', 'after_or_equal:progresses.*.start_date'],
             'progresses.*.desired_percent' => ['required', 'integer', 'min:0', 'max:100'],
             // === LAMPIRAN (NEW) ===
-            'attachments' => ['sometimes', 'array'],
+            'attachments'   => ['sometimes', 'array'],
             'attachments.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'], // 5MB
         ]);
 
@@ -113,20 +113,20 @@ class ProjectController extends Controller
 
         $project = DB::transaction(function () use ($data) {
             $project = Project::create([
-                'name' => $data['name'],
-                'description' => $data['description'] ?? null,
-                'created_by' => auth()->id(),
+                'name'               => $data['name'],
+                'description'        => $data['description'] ?? null,
+                'created_by'         => auth()->id(),
                 'digital_banking_id' => $data['digital_banking_id'],
-                'developer_id' => $data['developer_id'],
+                'developer_id'       => $data['developer_id'],
             ]);
 
             foreach ($data['progresses'] as $p) {
                 $project->progresses()->create([
-                    'name' => $p['name'],
-                    'start_date' => $p['start_date'],
-                    'end_date' => $p['end_date'],
+                    'name'            => $p['name'],
+                    'start_date'      => $p['start_date'],
+                    'end_date'        => $p['end_date'],
                     'desired_percent' => $p['desired_percent'],
-                    'created_by' => auth()->id(),
+                    'created_by'      => auth()->id(),
                 ]);
             }
 
@@ -143,12 +143,12 @@ class ProjectController extends Controller
                 $path = $file->store('project_attachments', 'public');
 
                 $project->attachments()->create([
-                    'path' => $path,
+                    'path'          => $path,
+                    // ❗ perbaikan kecil: pakai getClientOriginalName()
                     'original_name' => $file->getClientOriginalName(),
-                    'mime_type' => $file->getClientMimeType(),
-                    'size' => $file->getSize(),
-                    // ❗ dibenerin: hilangkan spasi
-                    'uploaded_by' => auth()->id(),
+                    'mime_type'     => $file->getClientMimeType(),
+                    'size'          => $file->getSize(),
+                    'uploaded_by'   => auth()->id(),
                 ]);
             }
         }
@@ -158,20 +158,20 @@ class ProjectController extends Controller
             // ====================== NOTIF UNTUK IT ======================
             if ($developer = User::find($project->developer_id)) {
                 $payload = [
-                    'type' => 'dig_project_created',
-                    'by_role' => 'digital_banking',
-                    'target_role' => 'it',
-                    'project_id' => $project->id,
-                    'project_name' => $project->name,
+                    'type'               => 'dig_project_created',
+                    'by_role'            => 'digital_banking',
+                    'target_role'        => 'it',
+                    'project_id'         => $project->id,
+                    'project_name'       => $project->name,
                     'digital_banking_id' => (string) $project->digital_banking_id,
-                    'developer_id' => (string) $project->developer_id,
-                    'message' => 'Digital Banking Membuat Project',
-                    'created_by' => (int) auth()->id(),
-                    'late' => false,
+                    'developer_id'       => (string) $project->developer_id,
+                    'message'            => 'Digital Banking Membuat Project',
+                    'created_by'         => (int) auth()->id(),
+                    'late'               => false,
                 ];
 
                 $developer->notifications()->create([
-                    'id' => (string) Str::uuid(),
+                    'id'   => (string) Str::uuid(),
                     'type' => 'app.dig',
                     'data' => $payload,
                 ]);
@@ -179,83 +179,81 @@ class ProjectController extends Controller
 
             // ====================== NOTIF SUPERVISOR (lama, pakai class) ======================
             $supPayload = [
-                'type' => SupervisorNotification::PROJECT_CREATED_BY_DIG,
-                'project_id' => $project->id,
+                'type'         => SupervisorNotification::PROJECT_CREATED_BY_DIG,
+                'project_id'   => $project->id,
                 'project_name' => $project->name,
-                'message' => 'DIG membuat project baru.',
-                'when' => now()->toISOString(),
+                'message'      => 'DIG membuat project baru.',
+                'when'         => now()->toISOString(),
             ];
 
             User::where('role', 'kepala_divisi')->get()
                 ->each(fn($sup) => $sup->notify(new SupervisorNotification($supPayload)));
 
-            // === KD notification (NEW): kirim juga versi 'dig_project_created' ke Kepala Divisi/Supervisor ===
+            // === KD notification (NEW)
             $kdUsers = User::whereIn('role', ['kepala_divisi', 'supervisor'])->get();
 
             foreach ($kdUsers as $kd) {
                 $kdPayload = [
-                    'type' => 'dig_project_created',      // 👈 disamakan dengan filter di kd.notifications
-                    'by_role' => 'digital_banking',
-                    'target_role' => 'kepala_divisi',     // boleh juga dikosongkan, view-mu handle dua-duanya
-                    'project_id' => $project->id,
-                    'project_name' => $project->name,
+                    'type'               => 'dig_project_created',
+                    'by_role'            => 'digital_banking',
+                    'target_role'        => 'kepala_divisi',
+                    'project_id'         => $project->id,
+                    'project_name'       => $project->name,
                     'digital_banking_id' => (string) $project->digital_banking_id,
-                    'developer_id' => (string) $project->developer_id,
-                    'message' => 'DIG membuat project baru.',
-                    'created_by' => (int) auth()->id(),
-                    'late' => false,
+                    'developer_id'       => (string) $project->developer_id,
+                    'message'            => 'DIG membuat project baru.',
+                    'created_by'         => (int) auth()->id(),
+                    'late'               => false,
                 ];
 
                 $kd->notifications()->create([
-                    'id' => (string) Str::uuid(),
+                    'id'   => (string) Str::uuid(),
                     'type' => 'app.dig',
                     'data' => $kdPayload,
                 ]);
             }
-            // === END KD notification (NEW) ===
-
         } else {
             // =============== CABANG ROLE === IT =================
             if ($dbUser = User::find($project->digital_banking_id)) {
                 $dbUser->notifications()->create([
-                    'id' => (string) Str::uuid(),
+                    'id'   => (string) Str::uuid(),
                     'type' => 'app.it',
                     'data' => [
-                        'type' => 'it_project_created',
-                        'by_role' => 'it',
-                        'project_id' => $project->id,
+                        'type'         => 'it_project_created',
+                        'by_role'      => 'it',
+                        'project_id'   => $project->id,
                         'project_name' => $project->name,
-                        'message' => 'IT membuat project baru.',
-                        'created_by' => (int) auth()->id(),
+                        'message'      => 'IT membuat project baru.',
+                        'created_by'   => (int) auth()->id(),
                     ],
                 ]);
             }
 
-            // === KD notification (NEW): kirim notifikasi 'it_project_created' ke Kepala Divisi/Supervisor ===
+            // === KD notification (NEW): notifikasi 'it_project_created'
             $kdUsers = User::whereIn('role', ['kepala_divisi', 'supervisor'])->get();
 
             foreach ($kdUsers as $kd) {
                 $kdPayload = [
-                    'type' => 'it_project_created',       // 👈 ini yang dicek di kd.notifications
-                    'by_role' => 'it',
-                    'target_role' => 'kepala_divisi',
-                    'project_id' => $project->id,
-                    'project_name' => $project->name,
-                    'message' => 'IT membuat project baru.',
+                    'type'               => 'it_project_created',
+                    'by_role'            => 'it',
+                    'target_role'        => 'kepala_divisi',
+                    'project_id'         => $project->id,
+                    'project_name'       => $project->name,
+                    'message'            => 'IT membuat project baru.',
                     'digital_banking_id' => (string) $project->digital_banking_id,
-                    'developer_id' => (string) $project->developer_id,
-                    'created_by' => (int) auth()->id(),
+                    'developer_id'       => (string) $project->developer_id,
+                    'created_by'         => (int) auth()->id(),
                 ];
 
                 $kd->notifications()->create([
-                    'id' => (string) Str::uuid(),
+                    'id'   => (string) Str::uuid(),
                     'type' => 'app.it',
                     'data' => $kdPayload,
                 ]);
             }
-            // === END KD notification (NEW) ===
         }
 
+        // behaviour create project tetap: kembali ke dashboard sesuai role
         if ($role === 'it' && \Route::has('it.dashboard')) {
             return redirect()->route('it.dashboard')->with('success', 'Project berhasil dibuat.');
         }
@@ -290,7 +288,6 @@ class ProjectController extends Controller
     /** Edit project */
     public function edit(Project $project)
     {
-        // ❗ pakai ability 'update', bukan 'manage'
         $this->authorize('update', $project);
 
         $digitalUsers = User::where('role', 'digital_banking')
@@ -301,8 +298,15 @@ class ProjectController extends Controller
             ->orderBy('name')
             ->get(['id', 'name', 'username']);
 
-        // kirim juga mode ke Blade
         $mode = 'edit';
+
+        // Simpan URL asal (dashboard / halaman project) ke session,
+        // supaya setelah update bisa balik ke sana.
+        $previous = url()->previous();
+        $current  = url()->current();
+        if ($previous && $previous !== $current) {
+            session(['project_edit_return_' . $project->id => $previous]);
+        }
 
         return view('semua.projects.form', compact('project', 'digitalUsers', 'itUsers', 'mode'));
     }
@@ -310,32 +314,30 @@ class ProjectController extends Controller
     /** Update project (+ hapus/tambah lampiran) */
     public function update(Request $request, Project $project)
     {
-        // ❗ pakai ability 'update'
         $this->authorize('update', $project);
 
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
+            'name'               => ['required', 'string', 'max:255'],
             'digital_banking_id' => ['required', 'exists:users,id'],
-            'developer_id' => ['required', 'exists:users,id'],
-            'description' => ['nullable', 'string'],
+            'developer_id'       => ['required', 'exists:users,id'],
+            'description'        => ['nullable', 'string'],
 
             // === HAPUS LAMPIRAN (NEW) ===
-            'delete_attachments' => ['sometimes', 'array'],
+            'delete_attachments'   => ['sometimes', 'array'],
             'delete_attachments.*' => ['integer', 'exists:project_attachments,id'],
 
             // === TAMBAH LAMPIRAN BARU (NEW) ===
-            'attachments' => ['sometimes', 'array'],
+            'attachments'   => ['sometimes', 'array'],
             'attachments.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
         DB::transaction(function () use ($project, $data, $request) {
-
             // Update data utama project
             $project->update([
-                'name' => $data['name'],
+                'name'               => $data['name'],
                 'digital_banking_id' => $data['digital_banking_id'],
-                'developer_id' => $data['developer_id'],
-                'description' => $data['description'] ?? null,
+                'developer_id'       => $data['developer_id'],
+                'description'        => $data['description'] ?? null,
             ]);
 
             // === HAPUS LAMPIRAN LAMA ===
@@ -345,9 +347,7 @@ class ProjectController extends Controller
                     ->get();
 
                 foreach ($attachmentsToDelete as $att) {
-                    // Hapus file fisik di storage
                     Storage::disk('public')->delete($att->path);
-                    // Hapus record di database
                     $att->delete();
                 }
             }
@@ -362,28 +362,48 @@ class ProjectController extends Controller
                     $path = $file->store('project_attachments', 'public');
 
                     $project->attachments()->create([
-                        'path' => $path,
+                        'path'          => $path,
                         'original_name' => $file->getClientOriginalName(),
-                        'mime_type' => $file->getClientMimeType(),
-                        'size' => $file->getSize(),
-                        'uploaded_by' => auth()->id(),
+                        'mime_type'     => $file->getClientMimeType(),
+                        'size'          => $file->getSize(),
+                        'uploaded_by'   => auth()->id(),
                     ]);
                 }
             }
         });
 
-        $route = \Route::has('dig.dashboard') ? 'dig.dashboard' : '/';
+        // ====== REDIRECT SESUAI ASAL HALAMAN EDIT ======
+        $sessionKey = 'project_edit_return_' . $project->id;
+        $returnTo   = session()->pull($sessionKey); // sekalian hapus dari session
 
-        return redirect()->route($route)->with('success', 'Project berhasil diperbarui.');
+        if ($returnTo) {
+            // Contoh: kalau edit dari dig.dashboard → balik ke dig.dashboard
+            // Kalau edit dari semua.progresses → balik ke semua.progresses
+            return redirect($returnTo)->with('success', 'Status project berhasil diperbarui.');
+        }
+
+        // fallback: kalau nggak ada di session, pakai default
+        if (\Route::has('semua.progresses')) {
+            return redirect()
+                ->route('semua.progresses')
+                ->with('success', 'Status project berhasil diperbarui.');
+        }
+
+        if (\Route::has('projects.index')) {
+            return redirect()
+                ->route('projects.index')
+                ->with('success', 'Status project berhasil diperbarui.');
+        }
+
+        return redirect('/')
+            ->with('success', 'Status project berhasil diperbarui.');
     }
 
     /** Hapus project */
     public function destroy(Project $project)
     {
-        // ❗ pakai ability 'update' juga (boleh juga 'delete' kalau mau bikin terpisah)
         $this->authorize('update', $project);
 
-        // Hapus juga semua lampiran (file + record)
         foreach ($project->attachments as $att) {
             Storage::disk('public')->delete($att->path);
         }
@@ -391,9 +411,8 @@ class ProjectController extends Controller
 
         $project->delete();
 
-        $route = \Route::has('dig.dashboard') ? 'dig.dashboard' : '/';
-
-        return redirect()->route($route)->with('success', 'Project berhasil dihapus.');
+        // ✅ tetap di halaman yang memanggil (progress / dashboard tergantung dari mana)
+        return back()->with('success', 'Status project berhasil diperbarui.');
     }
 
     /** Putusan Memenuhi / Tidak Memenuhi oleh DIG */
@@ -428,18 +447,18 @@ class ProjectController extends Controller
             return back()->with('error', 'Belum memenuhi syarat finalisasi: pastikan semua progress tercapai & terkonfirmasi, atau hanya tersisa progress yang sudah lewat timeline dan belum memenuhi sementara lainnya sudah terkonfirmasi.');
         }
 
-        $project->completed_at = $project->completed_at ?? now();
+        $project->completed_at      = $project->completed_at ?? now();
         $project->meets_requirement = (bool) ((int) $data['meets']);
         $project->save();
 
-        // === NOTIF KE DEVELOPER (IT) – sudah ada ===
+        // === NOTIF KE DEVELOPER (IT)
         if ($dev = User::find($project->developer_id)) {
             $dev->notify(new DigCompletionDecision(
-                projectId: $project->id,
+                projectId:   $project->id,
                 projectName: $project->name,
-                meets: $project->meets_requirement,
-                byId: auth()->id(),
-                byName: auth()->user()?->name
+                meets:       $project->meets_requirement,
+                byId:        auth()->id(),
+                byName:      auth()->user()?->name
             ));
         }
 
@@ -448,42 +467,41 @@ class ProjectController extends Controller
             : SupervisorNotification::PROJECT_UNMET;
 
         $supPayload = [
-            'type' => $notifType,
-            'project_id' => $project->id,
+            'type'         => $notifType,
+            'project_id'   => $project->id,
             'project_name' => $project->name,
-            'message' => $project->meets_requirement
+            'message'      => $project->meets_requirement
                 ? 'DIG memutuskan: Memenuhi.'
                 : 'DIG memutuskan: Tidak Memenuhi.',
-            'when' => now()->toISOString(),
+            'when'         => now()->toISOString(),
         ];
 
         User::where('role', 'supervisor')->get()
             ->each(fn($sup) => $sup->notify(new SupervisorNotification($supPayload)));
 
-        // === KD notification (NEW): kirim juga DigCompletionDecision ke Kepala Divisi/Supervisor ===
+        // === KD notification (NEW)
         $kdUsers = User::whereIn('role', ['kepala_divisi', 'supervisor'])->get();
 
         foreach ($kdUsers as $kd) {
             $kd->notify(new DigCompletionDecision(
-                projectId: $project->id,
+                projectId:   $project->id,
                 projectName: $project->name,
-                meets: $project->meets_requirement,
-                byId: auth()->id(),
-                byName: auth()->user()?->name
+                meets:       $project->meets_requirement,
+                byId:        auth()->id(),
+                byName:      auth()->user()?->name
             ));
         }
-        // === END KD notification (NEW) ===
 
+        // ✅ tetap di halaman (misal dig.progresses atau kd.progresses)
         return back()->with('success', 'Status penyelesaian project diperbarui.');
     }
 
     public function addAttachment(Request $request, Project $project)
     {
-        // ❗ pakai ability 'update'
         $this->authorize('update', $project);
 
         $request->validate([
-            'attachments' => ['required', 'array'],
+            'attachments'   => ['required', 'array'],
             'attachments.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'],
         ]);
 
@@ -495,11 +513,11 @@ class ProjectController extends Controller
             $path = $file->store('project_attachments', 'public');
 
             $project->attachments()->create([
-                'path' => $path,
+                'path'          => $path,
                 'original_name' => $file->getClientOriginalName(),
-                'mime_type' => $file->getClientMimeType(),
-                'size' => $file->getSize(),
-                'uploaded_by' => auth()->id(), // optional
+                'mime_type'     => $file->getClientMimeType(),
+                'size'          => $file->getSize(),
+                'uploaded_by'   => auth()->id(),
             ]);
         }
 
@@ -510,7 +528,6 @@ class ProjectController extends Controller
     {
         $project = $attachment->project;
 
-        // ❗ pakai ability 'update'
         $this->authorize('update', $project);
 
         if (Storage::disk('public')->exists($attachment->path)) {
@@ -522,7 +539,7 @@ class ProjectController extends Controller
         return back()->with('success', 'Lampiran berhasil dihapus.');
     }
 
-    /** Halaman semua progress (versi “semua”) */
+    /** Halaman semua progress (versi “semua”) – kalau masih dipakai */
     public function progresses(Request $r)
     {
         $status = $r->input('status','all');
@@ -543,6 +560,4 @@ class ProjectController extends Controller
 
         return view('semua.progresses', ['projects' => $projects->latest()->get()]);
     }
-
-    // method lain terkait progresses dsb kalau ada tetap bisa kamu biarkan seperti sebelumnya
 }

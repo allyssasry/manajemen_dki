@@ -121,12 +121,14 @@
         </svg>
       </a>
 
-      <a href="/logout" class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
-          <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-          <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
-        </svg>
-      </a>
+   <a href="/logout"
+   data-confirm-logout="true"
+   class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
+        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
+      </svg>
+    </a>
     </div>
   </aside>
 
@@ -212,13 +214,16 @@
         <span>Pengaturan Akun</span>
       </a>
 
-      <a href="/logout" class="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-[#FFF2F2] transition">
-        <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
-          <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-          <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
-        </svg>
-        <span>Log Out</span>
-      </a>
+ <a href="/logout"
+       data-confirm-logout="true"
+       class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
+       title="Log Out" aria-label="Log Out">
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
+        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
+      </svg>
+      <span>Log Out</span>
+    </a>
     </div>
   </aside>
 
@@ -862,8 +867,10 @@
                   @endcan
 
                   @can('delete', $project)
-                    <form action="{{ route('projects.destroy', $project->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus project ini? Aksi ini tidak bisa dibatalkan.');">
-                      @csrf @method('DELETE')
+<form action="{{ route('projects.destroy', $project->id) }}" method="POST"
+      data-confirm-delete="true"
+      data-message="Yakin ingin menghapus project ini? Aksi ini tidak bisa dibatalkan."> 
+                         @csrf @method('DELETE')
                       <button type="submit" class="p-2 rounded-lg bg-white hover:bg-[#FFF2F2] border" title="Hapus Project">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                           <path d="M6 7h12v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V7zm3-4h6l1 1h4v2H4V4h4l1-1z"/>
@@ -874,14 +881,26 @@
                 </div>
               </div>
 
-              <div class="mt-4 flex justify-end">
-                <button type="button"
-                        class="btn-toggle-progress inline-flex items-center gap-2 rounded-xl bg-[#7A1C1C] text-white px-3 py-2 text-sm shadow"
-                        data-target="progressForm-{{ $project->id }}">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z"/></svg>
-                  Tambah Progress
-                </button>
-              </div>
+             {{-- ==== TOMBOL TAMBAH PROGRESS (LOCK SETELAH FINAL) ==== --}}
+                <div class="mt-4 flex justify-end">
+                    <button type="button"
+                        data-target="progressForm-{{ $project->id }}"
+                        @if ($finalized)
+                            disabled
+                            title="Project sudah difinalisasi, progress baru tidak dapat ditambahkan."
+                            class="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm shadow bg-[#7A1C1C]/40 text-white cursor-not-allowed opacity-60"
+                        @else
+                            class="btn-toggle-progress inline-flex items-center gap-2 rounded-xl bg-[#7A1C1C] text-white px-3 py-2 text-sm shadow"
+                        @endif
+                    >
+                        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                             viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
+                        </svg>
+                        Tambah Progress
+                    </button>
+                </div>
+                {{-- ==== /TOMBOL TAMBAH PROGRESS ==== --}}
 
               <div id="progressForm-{{ $project->id }}" class="hidden mt-3 rounded-xl bg-[#FFF8F8] p-4 border border-[#E7C9C9]">
                 <div class="font-semibold mb-2">Tambah Progress untuk Project ini</div>
@@ -930,8 +949,10 @@
                             </button>
                           @endcan
                           @can('delete', $pr)
-                            <form method="POST" action="{{ route('progresses.destroy', $pr->id) }}" onsubmit="return confirm('Hapus progress ini?');">
-                              @csrf @method('DELETE')
+ <form method="POST"
+      action="{{ route('progresses.destroy', $pr->id) }}"
+      data-confirm-delete="true"
+      data-message="Hapus progress ini?">                              @csrf @method('DELETE')
                               <button class="px-3 py-1.5 text-xs rounded-lg border bg-white hover:bg-[#FFF2F2]"
                                       @if($alreadyConfirmed) disabled title="Sudah dikonfirmasi" @endif>
                                 Hapus
@@ -1072,7 +1093,77 @@
       @endif
     </div>
   </div> {{-- /#pageWrapper --}}
+    {{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
+    <div id="confirmLogoutModal"
+         class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+                        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-semibold">Konfirmasi Logout</div>
+                    <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
+                </div>
+            </div>
+            <div class="px-4 py-4 text-sm text-gray-700">
+                Yakin ingin logout dari akun ini?
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+                <button type="button"
+                        id="cancelLogoutBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                    Batal
+                </button>
+                <button type="button"
+                        id="confirmLogoutBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
 
+    {{-- ===== MODAL KONFIRMASI HAPUS (PROJECT / PROGRESS) ===== --}}
+    <div id="confirmDeleteModal"
+         class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#7A1C1C] text-white">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4"
+                         viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 15h2v2h-2zm0-8h2v6h-2z"/>
+                        <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10
+                                 10-4.49 10-10S17.51 2 12 2zm0 18
+                                 c-4.41 0-8-3.59-8-8s3.59-8 8-8
+                                 8 3.59 8 8-3.59 8-8 8z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-semibold">Konfirmasi Hapus</div>
+                    <div class="text-xs text-white/80">Aksi ini tidak bisa dibatalkan.</div>
+                </div>
+            </div>
+            <div class="px-4 py-4 text-sm text-gray-700" id="confirmDeleteMessage">
+                Yakin ingin menghapus data ini?
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+                <button type="button"
+                        id="cancelDeleteBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                    Batal
+                </button>
+                <button type="button"
+                        id="confirmDeleteBtn"
+                        class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
   {{-- ============== SCRIPTS ============== --}}
   <script>
     const sidebar      = document.getElementById('sidebar');
@@ -1277,5 +1368,114 @@
       });
     })();
   </script>
+    <script>
+        (function () {
+            let pendingLogoutHref = null;
+            let pendingDeleteForm = null;
+
+            const logoutModal = document.getElementById('confirmLogoutModal');
+            const deleteModal = document.getElementById('confirmDeleteModal');
+            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
+
+            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+            function openModal(modal) {
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeModal(modal) {
+                if (!modal) return;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            // ====== LOGOUT HANDLER ======
+            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
+                link.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    pendingLogoutHref = this.getAttribute('href');
+                    openModal(logoutModal);
+                });
+            });
+
+            confirmLogoutBtn?.addEventListener('click', function () {
+                if (pendingLogoutHref) {
+                    window.location.href = pendingLogoutHref;
+                }
+            });
+
+            cancelLogoutBtn?.addEventListener('click', function () {
+                pendingLogoutHref = null;
+                closeModal(logoutModal);
+            });
+
+            // Klik di luar card = tutup modal logout
+            logoutModal?.addEventListener('click', function (e) {
+                if (e.target === logoutModal) {
+                    pendingLogoutHref = null;
+                    closeModal(logoutModal);
+                }
+            });
+
+            // ====== DELETE HANDLER (project / progress) ======
+            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    pendingDeleteForm = this;
+
+                    const msg = this.getAttribute('data-message');
+                    if (msg && deleteMsgEl) {
+                        deleteMsgEl.textContent = msg;
+                    }
+
+                    openModal(deleteModal);
+                });
+            });
+
+            confirmDeleteBtn?.addEventListener('click', function () {
+                if (pendingDeleteForm) {
+                    const formToSubmit = pendingDeleteForm;
+                    pendingDeleteForm = null;
+                    closeModal(deleteModal);
+                    formToSubmit.submit();
+                }
+            });
+
+            cancelDeleteBtn?.addEventListener('click', function () {
+                pendingDeleteForm = null;
+                closeModal(deleteModal);
+            });
+
+            // Klik di luar card = tutup modal delete
+            deleteModal?.addEventListener('click', function (e) {
+                if (e.target === deleteModal) {
+                    pendingDeleteForm = null;
+                    closeModal(deleteModal);
+                }
+            });
+
+            // ESC key untuk nutup modal (kalau ada yang kebuka)
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
+                        pendingLogoutHref = null;
+                        closeModal(logoutModal);
+                    }
+                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
+                        pendingDeleteForm = null;
+                        closeModal(deleteModal);
+                    }
+                }
+            });
+        })();
+    </script>
 </body>
 </html>

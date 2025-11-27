@@ -85,24 +85,27 @@
             fill: #7c7c7c;
             font-size: 11px;
         }
+
         /* === Kalender putih khusus di kartu Project Akumulasi === */
-.card-maroon input[type="month"] {
-    color: #fff; /* teks bulan/tahun jadi putih */
-}
+        .card-maroon input[type="month"] {
+            color: #fff;
+            /* teks bulan/tahun jadi putih */
+        }
 
-/* Chrome, Edge, Safari (WebKit) */
-.card-maroon input[type="month"]::-webkit-calendar-picker-indicator {
-    filter: invert(1);      /* bikin icon jadi putih */
-    opacity: 1;
-    cursor: pointer;
-}
+        /* Chrome, Edge, Safari (WebKit) */
+        .card-maroon input[type="month"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            /* bikin icon jadi putih */
+            opacity: 1;
+            cursor: pointer;
+        }
 
-/* (opsional) hilangin background bawaan biar bersih */
-.card-maroon input[type="month"] {
-    background-color: rgba(255, 255, 255, 0.06); /* sudah mirip bg-white/10 */
-    border-color: rgba(248, 250, 252, 0.5);
-}
-
+        /* (opsional) hilangin background bawaan biar bersih */
+        .card-maroon input[type="month"] {
+            background-color: rgba(255, 255, 255, 0.06);
+            /* sudah mirip bg-white/10 */
+            border-color: rgba(248, 250, 252, 0.5);
+        }
     </style>
 </head>
 
@@ -111,173 +114,185 @@
 @endphp
 
 <body class="min-h-screen bg-white text-gray-900">
-   {{-- ===== MINI SIDEBAR (rail ikon) ===== --}}
-{{-- ===== MINI SIDEBAR (rail ikon) ===== --}}
-<aside id="miniSidebar"
-    class="hidden md:flex fixed inset-y-0 left-0 z-40 w-16 bg-white border-r shadow-xl flex-col items-center justify-between py-4">
+    {{-- ===== MINI SIDEBAR (rail ikon) ===== --}}
+    {{-- ===== MINI SIDEBAR (rail ikon) ===== --}}
+    <aside id="miniSidebar"
+        class="hidden md:flex fixed inset-y-0 left-0 z-40 w-16 bg-white border-r shadow-xl flex-col items-center justify-between py-4">
 
-    <div class="flex flex-col items-center gap-6">
-        {{-- Logo / buka sidebar penuh --}}
-        <button id="railLogoBtn" type="button" title="Buka Sidebar" aria-label="Buka Sidebar"
-            class="rounded-xl p-2 hover:bg-[#FFF2F2] cursor-pointer">
-            <img src="{{ asset('images/dki.png') }}" class="h-6 w-auto object-contain" alt="Logo" />
-        </button>
+        <div class="flex flex-col items-center gap-6">
+            {{-- Logo / buka sidebar penuh --}}
+            <button id="railLogoBtn" type="button" title="Buka Sidebar" aria-label="Buka Sidebar"
+                class="rounded-xl p-2 hover:bg-[#FFF2F2] cursor-pointer">
+                <img src="{{ asset('images/dki.png') }}" class="h-6 w-auto object-contain" alt="Logo" />
+            </button>
 
-        {{-- DASHBOARD --}}
-        <a href="{{ route('dig.dashboard') }}"
-           class="p-2 rounded-lg {{ request()->routeIs('dig.dashboard') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
-           title="Dashboard" aria-label="Dashboard">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                 fill="{{ request()->routeIs('dig.dashboard') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-        </a>
+            {{-- DASHBOARD --}}
+            <a href="{{ route('dig.dashboard') }}"
+                class="p-2 rounded-lg {{ request()->routeIs('dig.dashboard') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
+                title="Dashboard" aria-label="Dashboard">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
+                    fill="{{ request()->routeIs('dig.dashboard') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                </svg>
+            </a>
 
-        {{-- PROGRESS --}}
-        <a href="{{ route('semua.progresses') }}"
-           class="p-2 rounded-lg {{ request()->routeIs('semua.progresses*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
-           title="Progress" aria-label="Progress">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                 fill="{{ request()->routeIs('semua.progresses*') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
-                <path d="M4 22h16V2H4v20zm3-5h2v3H7v-3zm4-7h2v10h-2V10zm4 3h2v7h-2v-7z" />
-            </svg>
-        </a>
+            {{-- PROGRESS --}}
+            <a href="{{ route('semua.progresses') }}"
+                class="p-2 rounded-lg {{ request()->routeIs('semua.progresses*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
+                title="Progress" aria-label="Progress">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
+                    fill="{{ request()->routeIs('semua.progresses*') ? '#7A1C1C' : 'currentColor' }}"
+                    viewBox="0 0 24 24">
+                    <path d="M4 22h16V2H4v20zm3-5h2v3H7v-3zm4-7h2v10h-2V10zm4 3h2v7h-2v-7z" />
+                </svg>
+            </a>
 
-        {{-- NOTIFIKASI --}}
-        <a href="{{ route('dig.notifications') }}"
-           class="p-2 rounded-lg {{ request()->routeIs('dig.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
-           title="Notifikasi" aria-label="Notifikasi">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                 fill="{{ request()->routeIs('dig.notifications*') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
-                <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
-            </svg>
-        </a>
+            {{-- NOTIFIKASI --}}
+            <a href="{{ route('dig.notifications') }}"
+                class="p-2 rounded-lg {{ request()->routeIs('dig.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
+                title="Notifikasi" aria-label="Notifikasi">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
+                    fill="{{ request()->routeIs('dig.notifications*') ? '#7A1C1C' : 'currentColor' }}"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z" />
+                </svg>
+            </a>
 
-        {{-- ARSIP --}}
-        <a href="{{ route('semua.arsip') }}"
-           class="p-2 rounded-lg {{ request()->routeIs('semua.arsip*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
-           title="Arsip" aria-label="Arsip">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
-                 fill="{{ request()->routeIs('semua.arsip*') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
-                <path d="M3 3h18v4H3V3zm1 4h16v14H4V7zm2 2v10h12V9H6zm3 3h6v2H9v-2z" />
-            </svg>
-        </a>
-    </div>
+            {{-- ARSIP --}}
+            <a href="{{ route('semua.arsip') }}"
+                class="p-2 rounded-lg {{ request()->routeIs('semua.arsip*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
+                title="Arsip" aria-label="Arsip">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
+                    fill="{{ request()->routeIs('semua.arsip*') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
+                    <path d="M3 3h18v4H3V3zm1 4h16v14H4V7zm2 2v10h12V9H6zm3 3h6v2H9v-2z" />
+                </svg>
+            </a>
+        </div>
 
-    <div class="flex flex-col items-center gap-4">
-        {{-- PENGATURAN --}}
-        <a href="{{ route('account.setting') }}"
-           class="p-2 rounded-lg {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C]' : 'hover:bg-[#FFF2F2] text-gray-800' }}"
-           title="Pengaturan Akun" aria-label="Pengaturan Akun">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                    d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1c-.6-.35-1.22-.6-1.87-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
-            </svg>
-        </a>
+        <div class="flex flex-col items-center gap-4">
+            {{-- PENGATURAN --}}
+            <a href="{{ route('account.setting') }}"
+                class="p-2 rounded-lg {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C]' : 'hover:bg-[#FFF2F2] text-gray-800' }}"
+                title="Pengaturan Akun" aria-label="Pengaturan Akun">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path
+                        d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1c-.6-.35-1.22-.6-1.87-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
+                </svg>
+            </a>
 
-        {{-- LOGOUT --}}
-        <a href="/logout" class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
-                <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-                <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
-            </svg>
-        </a>
-    </div>
-</aside>
+            {{-- LOGOUT --}}
+            <a href="/logout" data-confirm-logout="true" class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out"
+                aria-label="Log Out">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
+                    <path
+                        d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+                    <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
+                </svg>
+            </a>
+        </div>
+    </aside>
 
 
-{{-- ===== BACKDROP (mobile) ===== --}}
-<div id="sidebarBackdrop" class="hidden fixed inset-0 z-40 bg-black/30 md:hidden"></div>
+    {{-- ===== BACKDROP (mobile) ===== --}}
+    <div id="sidebarBackdrop" class="hidden fixed inset-0 z-40 bg-black/30 md:hidden"></div>
 
-{{-- ===== SIDEBAR PENUH (drawer) ===== --}}
-<aside id="sidebar"
-    class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] -translate-x-full
+    {{-- ===== SIDEBAR PENUH (drawer) ===== --}}
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 z-50 w-72 max-w-[85vw] -translate-x-full
            bg-white border-r shadow-xl flex flex-col">
 
-    <div class="px-5 pt-5 pb-4 border-b bg-white">
-        <div class="flex items-center">
-            <img src="https://website-api.bankdki.co.id/integrations/storage/page-meta-data/007UlZbO3Oe6PivLltdFiQax6QH5kWDvb0cKPdn4.png"
-                class="h-8 w-auto object-contain" alt="Bank Jakarta">
-            <button id="sidebarCloseBtn" class="ml-auto p-2 rounded-lg border hover:bg-red-50 text-red-700"
-                title="Tutup" aria-label="Tutup sidebar">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29l6.29 6.29 6.3-6.29z" />
-                </svg>
-            </button>
+        <div class="px-5 pt-5 pb-4 border-b bg-white">
+            <div class="flex items-center">
+                <img src="https://website-api.bankdki.co.id/integrations/storage/page-meta-data/007UlZbO3Oe6PivLltdFiQax6QH5kWDvb0cKPdn4.png"
+                    class="h-8 w-auto object-contain" alt="Bank Jakarta">
+                <button id="sidebarCloseBtn" class="ml-auto p-2 rounded-lg border hover:bg-red-50 text-red-700"
+                    title="Tutup" aria-label="Tutup sidebar">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M18.3 5.71 12 12l6.3 6.29-1.41 1.42L10.59 13.4 4.3 19.71 2.89 18.3 9.17 12 2.89 5.71 4.3 4.29l6.29 6.29 6.3-6.29z" />
+                    </svg>
+                </button>
+            </div>
         </div>
-    </div>
 
-    <nav class="flex-1 overflow-y-auto py-3 text-sm font-medium text-gray-700">
-        {{-- DASHBOARD --}}
-        <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-3 mb-1">Dashboard</div>
-        <a href="{{ route('dig.dashboard') }}"
-           class="flex items-center gap-3 px-5 py-2.5 rounded-xl
+        <nav class="flex-1 overflow-y-auto py-3 text-sm font-medium text-gray-700">
+            {{-- DASHBOARD --}}
+            <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-3 mb-1">Dashboard</div>
+            <a href="{{ route('dig.dashboard') }}"
+                class="flex items-center gap-3 px-5 py-2.5 rounded-xl
                   {{ request()->routeIs('dig.dashboard') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
-                 fill="{{ request()->routeIs('dig.dashboard') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-            </svg>
-            <span>Dashboard</span>
-        </a>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
+                    fill="{{ request()->routeIs('dig.dashboard') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
 
-        {{-- PROGRESS --}}
-        <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Project</div>
-        <a href="{{ route('semua.progresses') }}"
-           class="flex items-center gap-3 px-5 py-2.5 rounded-xl
+            {{-- PROGRESS --}}
+            <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Project</div>
+            <a href="{{ route('semua.progresses') }}"
+                class="flex items-center gap-3 px-5 py-2.5 rounded-xl
                   {{ request()->routeIs('semua.progresses*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
-                 fill="{{ request()->routeIs('semua.progresses*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-                <path d="M4 22h16V2H4v20zm3-5h2v3H7v-3zm4-7h2v10h-2V10zm4 3h2v7h-2v-7z" />
-            </svg>
-            <span>Project</span>
-        </a>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
+                    fill="{{ request()->routeIs('semua.progresses*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
+                    <path d="M4 22h16V2H4v20zm3-5h2v3H7v-3zm4-7h2v10h-2V10zm4 3h2v7h-2v-7z" />
+                </svg>
+                <span>Project</span>
+            </a>
 
-        {{-- NOTIFIKASI --}}
-        <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Notifikasi</div>
-        <a href="{{ route('dig.notifications') }}"
-           class="flex items-center gap-3 px-5 py-2.5 rounded-xl
+            {{-- NOTIFIKASI --}}
+            <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Notifikasi</div>
+            <a href="{{ route('dig.notifications') }}"
+                class="flex items-center gap-3 px-5 py-2.5 rounded-xl
                   {{ request()->routeIs('dig.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
-                 fill="{{ request()->routeIs('dig.notifications*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-          <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
-            </svg>
-            <span>Notifikasi</span>
-        </a>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
+                    fill="{{ request()->routeIs('dig.notifications*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
+                    <path
+                        d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z" />
+                </svg>
+                <span>Notifikasi</span>
+            </a>
 
-        {{-- ARSIP --}}
-        <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Arsip</div>
-        <a href="{{ route('semua.arsip') }}"
-           class="flex items-center gap-3 px-5 py-2.5 rounded-xl
+            {{-- ARSIP --}}
+            <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Arsip</div>
+            <a href="{{ route('semua.arsip') }}"
+                class="flex items-center gap-3 px-5 py-2.5 rounded-xl
                   {{ request()->routeIs('semua.arsip*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
-                 fill="{{ request()->routeIs('semua.arsip*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-                <path d="M3 3h18v4H3V3zm1 4h16v14H4V7zm2 2v10h12V9H6zm3 3h6v2H9v-2z" />
-            </svg>
-            <span>Arsip</span>
-        </a>
-    </nav>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
+                    fill="{{ request()->routeIs('semua.arsip*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
+                    <path d="M3 3h18v4H3V3zm1 4h16v14H4V7zm2 2v10h12V9H6zm3 3h6v2H9v-2z" />
+                </svg>
+                <span>Arsip</span>
+            </a>
+        </nav>
 
-    <div class="border-t p-3 bg-white text-sm">
-        <a href="{{ route('account.setting') }}"
-           class="flex items-center gap-3 px-3 py-2 rounded-xl
+        <div class="border-t p-3 bg-white text-sm">
+            <a href="{{ route('account.setting') }}"
+                class="flex items-center gap-3 px-3 py-2 rounded-xl
                   {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'text-gray-800 hover:bg-[#FFF2F2]' }}">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                    d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
-            </svg>
-            <span>Pengaturan Akun</span>
-        </a>
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24"
+                    fill="currentColor">
+                    <path
+                        d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
+                </svg>
+                <span>Pengaturan Akun</span>
+            </a>
 
-        <a href="/logout" class="mt-2 flex items-center gap-3 px-3 py-2 rounded-xl text-gray-800 hover:bg-[#FFF2F2]">
-            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-                <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
-            </svg>
-            <span>Log Out</span>
-        </a>
-    </div>
-</aside>
+            <a href="/logout" data-confirm-logout="true"
+                class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
+                title="Log Out" aria-label="Log Out">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black"
+                    viewBox="0 0 24 24">
+                    <path
+                        d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+                    <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
+                </svg>
+                <span>Log Out</span>
+            </a>
+        </div>
+    </aside>
 
     {{-- ============== /SIDEBAR ============== --}}
 
@@ -670,7 +685,8 @@
                             </option>
                             <option value="confirm" {{ $mode === 'confirm' ? 'selected' : '' }}>Terkonfirmasi</option>
                         </select>
-                        <button class="h-7 px-3 rounded-md border border-red-200 px-2 py-1 font-semibold text-sm text-[#8D2121] bg-[#FFF7F7] hover:bg-[#8D2121]/10">Terapkan</button>
+                        <button
+                            class="h-7 px-3 rounded-md border border-red-200 px-2 py-1 font-semibold text-sm text-[#8D2121] bg-[#FFF7F7] hover:bg-[#8D2121]/10">Terapkan</button>
                     </form>
                 </div>
 
@@ -957,15 +973,17 @@
                             });
                             $barWidth = max(0, min(100, $sumReal));
 
+                            // ===== STATUS PROJECT & FINALISASI =====
                             $finalized = !is_null($project->meets_requirement) || !is_null($project->completed_at);
                             $progressCount = $project->progresses->count();
                             $allConfirmedAndMet =
                                 $progressCount > 0 &&
                                 $project->progresses->every(function ($p) {
                                     $last = $p->updates->sortByDesc('update_date')->first();
-                                    $real = $last ? (int) ($last->percent ?? ($last->progress_percent ?? 0)) : 0;
+                                    $real = $last ? (int) ($last->progress_percent ?? ($last->percent ?? 0)) : 0;
                                     return !is_null($p->confirmed_at) && $real >= (int) $p->desired_percent;
                                 });
+
                             if ($finalized) {
                                 $statusText = $project->meets_requirement
                                     ? 'Project Selesai, Memenuhi'
@@ -978,6 +996,7 @@
                                 $statusText = 'Dalam Proses';
                                 $statusColor = '#7A1C1C';
                             }
+
                             $canDecideCompletion =
                                 $project->can_decide_completion ??
                                 (function () use ($project) {
@@ -1019,14 +1038,15 @@
                                 }
                             }
 
-                            // User untuk pilihan edit inline
+                            // User (kalau mau dipakai ke depan)
                             $meUser = auth()->user();
                         @endphp
 
-
                         <div class="rounded-2xl border-2 border-[#7A1C1C] bg-white p-5">
+                            {{-- ===== HEADER PROJECT (status, bar, info, lampiran, tombol finalize) ===== --}}
                             <div class="grid md:grid-cols-[1fr,auto] items-start gap-4">
                                 <div class="flex flex-col gap-3 w-full">
+                                    {{-- Status chip --}}
                                     <div class="text-xs font-semibold">
                                         <span
                                             class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
@@ -1035,6 +1055,7 @@
                                         </span>
                                     </div>
 
+                                    {{-- Progress bar akumulasi project --}}
                                     <div class="w-full">
                                         <div class="flex items-center justify-between mb-1">
                                             <span class="text-[13px] text-gray-700">Progress Project</span>
@@ -1045,34 +1066,40 @@
                                             <div class="h-3 bg-[#7A1C1C] rounded-full"
                                                 style="width: {{ $barWidth }}%;"></div>
                                         </div>
-                                        <div class="mt-1 text-[11px] text-gray-600">Target (akumulasi “Keinginan
-                                            Awal”): {{ $sumDesired }}%</div>
+                                        <div class="mt-1 text-[11px] text-gray-600">
+                                            Target (akumulasi “Keinginan Awal”): {{ $sumDesired }}%
+                                        </div>
                                     </div>
 
+                                    {{-- Info project --}}
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-2 text-sm mt-2">
-                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2"><span
-                                                class="text-gray-600">Nama Project</span><span>:</span><span
-                                                class="font-semibold">{{ $project->name }}</span></div>
-                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2"><span
-                                                class="text-gray-600">Keinginan Awal</span><span>:</span><span
-                                                class="font-semibold">{{ $sumDesired }}%</span></div>
-                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2"><span
-                                                class="text-gray-600">Realisasi</span><span>:</span><span
-                                                class="font-semibold">{{ $sumReal }}%</span></div>
-                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2"><span
-                                                class="text-gray-600">Penanggung Jawab
-                                                (DIG)</span><span>:</span><span>{{ $project->digitalBanking->name ?? '-' }}</span>
+                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
+                                            <span class="text-gray-600">Nama Project</span><span>:</span>
+                                            <span class="font-semibold">{{ $project->name }}</span>
                                         </div>
-                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2"><span
-                                                class="text-gray-600">Penanggung Jawab
-                                                (IT)</span><span>:</span><span>{{ $project->developer->name ?? '-' }}</span>
+                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
+                                            <span class="text-gray-600">Keinginan Awal</span><span>:</span>
+                                            <span class="font-semibold">{{ $sumDesired }}%</span>
                                         </div>
-                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2"><span
-                                                class="text-gray-600">Deskripsi</span><span>:</span><span>{{ $project->description ?: '-' }}</span>
+                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
+                                            <span class="text-gray-600">Realisasi</span><span>:</span>
+                                            <span class="font-semibold">{{ $sumReal }}%</span>
+                                        </div>
+                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
+                                            <span class="text-gray-600">Penanggung Jawab (DIG)</span><span>:</span>
+                                            <span>{{ $project->digitalBanking->name ?? '-' }}</span>
+                                        </div>
+                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
+                                            <span class="text-gray-600">Penanggung Jawab (IT)</span><span>:</span>
+                                            <span>{{ $project->developer->name ?? '-' }}</span>
+                                        </div>
+                                        <div class="grid grid-cols-[auto_auto_1fr] gap-x-2">
+                                            <span class="text-gray-600">Deskripsi</span><span>:</span>
+                                            <span>{{ $project->description ?: '-' }}</span>
                                         </div>
                                     </div>
 
-                                    {{-- ===== LAMPIRAN PROJECT (LIST) ===== --}}
+                                    {{-- Lampiran project --}}
                                     @if ($project->attachments && $project->attachments->isNotEmpty())
                                         <div class="mt-3">
                                             <div class="text-xs font-semibold text-gray-700 mb-1">Lampiran</div>
@@ -1103,9 +1130,9 @@
                                             </div>
                                         </div>
                                     @endif
-                                    {{-- ===== /LAMPIRAN PROJECT (LIST) ===== --}}
                                 </div>
 
+                                {{-- Aksi project: finalize, edit, hapus --}}
                                 <div class="flex items-start gap-2 justify-end">
                                     @can('finalize-project', $project)
                                         @if ($canDecideCompletion)
@@ -1114,22 +1141,22 @@
                                                 class="mr-2">
                                                 @csrf @method('PATCH')
                                                 <input type="hidden" name="meets" value="1">
-                                                <button
-                                                    class="px-3 py-1.5 text-xs rounded-full bg-green-700 text-white">Memenuhi</button>
+                                                <button class="px-3 py-1.5 text-xs rounded-full bg-green-700 text-white">
+                                                    Memenuhi
+                                                </button>
                                             </form>
                                             <form method="POST"
                                                 action="{{ route('projects.setCompletion', $project->id) }}"
                                                 class="mr-2">
                                                 @csrf @method('PATCH')
                                                 <input type="hidden" name="meets" value="0">
-                                                <button
-                                                    class="px-3 py-1.5 text-xs rounded-full bg-[#7A1C1C] text-white">Tidak
-                                                    Memenuhi</button>
+                                                <button class="px-3 py-1.5 text-xs rounded-full bg-[#7A1C1C] text-white">
+                                                    Tidak Memenuhi
+                                                </button>
                                             </form>
                                         @endif
                                     @endcan
 
-                                    {{-- GANTI: anchor -> button toggle edit project inline --}}
                                     <a href="{{ route('semua.projects.edit', $project->id) }}"
                                         class="p-2 rounded-lg bg-white hover:bg-[#FFF2F2] border"
                                         title="Edit Project">
@@ -1140,10 +1167,9 @@
                                         </svg>
                                     </a>
 
-
-
                                     <form action="{{ route('projects.destroy', $project->id) }}" method="POST"
-                                        onsubmit="return confirm('Yakin ingin menghapus project ini? Aksi ini tidak bisa dibatalkan.');">
+                                        data-confirm-delete="true"
+                                        data-message="Yakin ingin menghapus project ini? Aksi ini tidak bisa dibatalkan.">
                                         @csrf @method('DELETE')
                                         <button type="submit"
                                             class="p-2 rounded-lg bg-white hover:bg-[#FFF2F2] border"
@@ -1157,11 +1183,16 @@
                                     </form>
                                 </div>
                             </div>
+                            {{-- ===== /HEADER PROJECT ===== --}}
 
+                            {{-- ==== TOMBOL TAMBAH PROGRESS (LOCK SETELAH FINAL) ==== --}}
                             <div class="mt-4 flex justify-end">
-                                <button type="button"
-                                    class="btn-toggle-progress inline-flex items-center gap-2 rounded-xl bg-[#7A1C1C] text-white px-3 py-2 text-sm shadow"
-                                    data-target="progressForm-{{ $project->id }}">
+                                <button type="button" data-target="progressForm-{{ $project->id }}"
+                                    @if ($finalized) disabled
+                            title="Project sudah difinalisasi, progress baru tidak dapat ditambahkan."
+                            class="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm shadow bg-[#7A1C1C]/40 text-white cursor-not-allowed opacity-60"
+                        @else
+                            class="btn-toggle-progress inline-flex items-center gap-2 rounded-xl bg-[#7A1C1C] text-white px-3 py-2 text-sm shadow" @endif>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24"
                                         fill="currentColor">
                                         <path d="M11 11V5h2v6h6v2h-6v6h-2v-6H5v-2h6z" />
@@ -1169,7 +1200,9 @@
                                     Tambah Progress
                                 </button>
                             </div>
+                            {{-- ==== /TOMBOL TAMBAH PROGRESS ==== --}}
 
+                            {{-- FORM TAMBAH PROGRESS --}}
                             <div id="progressForm-{{ $project->id }}"
                                 class="hidden mt-3 rounded-xl bg-[#FFF8F8] p-4 border border-[#E7C9C9]">
                                 <div class="font-semibold mb-2">Tambah Progress untuk Project ini</div>
@@ -1182,39 +1215,54 @@
                                         class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none">
                                     <input type="date" name="end_date" required
                                         class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none">
-                                  <input type="number" name="desired_percent" required
-    min="1" max="100"
-    placeholder="Target %"
-    class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none" />
+                                    <input type="number" name="desired_percent" required min="1"
+                                        max="100" placeholder="Target %"
+                                        class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none" />
 
                                     <button
-                                        class="rounded-xl border-2 border-[#7A1C1C] bg-[#E2B9B9] px-4 py-2 font-semibold">Tambah</button>
+                                        class="rounded-xl border-2 border-[#7A1C1C] bg-[#E2B9B9] px-4 py-2 font-semibold">
+                                        Tambah
+                                    </button>
                                 </form>
                             </div>
 
+                            {{-- LIST PROGRESS --}}
                             <div class="mt-4">
                                 <div class="scroll-thin grid md:grid-cols-2 gap-4 max-h-[280px] overflow-y-auto pr-1">
-                                    @forelse($project->progresses as $pr)
+                                    @forelse ($project->progresses as $pr)
                                         @php
                                             $last = $pr->updates->sortByDesc('update_date')->first();
                                             $realisasi = $last
                                                 ? (int) ($last->percent ?? ($last->progress_percent ?? 0))
                                                 : 0;
+
                                             $isOwner = (int) ($pr->created_by ?? 0) === (int) auth()->id();
                                             $alreadyConfirmed = !is_null($pr->confirmed_at);
                                             $isDig = auth()->user()?->role === 'digital_banking';
+
                                             $endDate = $pr->end_date
                                                 ? \Illuminate\Support\Carbon::parse($pr->end_date)->startOfDay()
                                                 : null;
                                             $isOverdue = $endDate ? $endDate->lt(now()->startOfDay()) : false;
-                                            $canUpdate = $isOwner && $isDig && !$alreadyConfirmed && !$isOverdue;
-                                            $canConfirmBase =
-                                                $realisasi >= (int) $pr->desired_percent && !$alreadyConfirmed;
-                                            $canConfirm = $isOwner && $canConfirmBase;
+
+                                            // progress terlambat + belum memenuhi
                                             $isUnmet =
                                                 $isOverdue &&
                                                 !$pr->confirmed_at &&
                                                 $realisasi < (int) $pr->desired_percent;
+
+                                            // Boleh mutasi (edit/hapus) progress?
+                                            $canMutate = $isOwner && !$alreadyConfirmed && !$finalized;
+
+                                            // Boleh update persen harian?
+                                            $canUpdate =
+                                                $isOwner && $isDig && !$alreadyConfirmed && !$isOverdue && !$finalized;
+
+                                            // Boleh konfirmasi selesai?
+                                            $canConfirmBase =
+                                                $realisasi >= (int) $pr->desired_percent && !$alreadyConfirmed;
+                                            $canConfirm = $isOwner && $canConfirmBase && !$finalized;
+
                                             $creator = $pr->creator ?? null;
                                             $roleC = $creator?->role;
                                             $ownerRoleLabel =
@@ -1227,24 +1275,44 @@
                                                     Progress {{ $loop->iteration }} — {{ $pr->name }}
                                                     @if ($isUnmet)
                                                         <span
-                                                            class="ml-2 inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-[11px] font-semibold">Tidak
-                                                            Memenuhi</span>
+                                                            class="ml-2 inline-flex items-center rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-[11px] font-semibold">
+                                                            Tidak Memenuhi
+                                                        </span>
                                                     @endif
                                                 </div>
 
                                                 @if ($isOwner)
                                                     <div class="flex items-center gap-2">
+                                                        {{-- BTN EDIT --}}
                                                         <button type="button"
-                                                            class="px-3 py-1.5 text-xs rounded-lg border bg-white hover:bg-[#FFF2F2]"
-                                                            onclick="document.getElementById('editProgress-{{ $pr->id }}').classList.toggle('hidden')">
+                                                            class="px-3 py-1.5 text-xs rounded-lg border bg-white hover:bg-[#FFF2F2] disabled:opacity-50 disabled:cursor-not-allowed"
+                                                            onclick="document.getElementById('editProgress-{{ $pr->id }}').classList.toggle('hidden')"
+                                                            @if (!$canMutate) disabled
+                                                    title="{{ $finalized
+                                                        ? 'Project sudah difinalisasi, progress tidak dapat diedit.'
+                                                        : ($alreadyConfirmed
+                                                            ? 'Progress sudah dikonfirmasi.'
+                                                            : '') }}" @endif>
                                                             Edit
                                                         </button>
+
+                                                        {{-- BTN HAPUS --}}
                                                         <form method="POST"
                                                             action="{{ route('progresses.destroy', $pr->id) }}"
-                                                            onsubmit="return confirm('Hapus progress ini?');">
+                                                            data-confirm-delete="true"
+                                                            data-message="Hapus progress ini?">
+
                                                             @csrf @method('DELETE')
                                                             <button
-                                                                class="px-3 py-1.5 text-xs rounded-lg border bg-white hover:bg-[#FFF2F2]">Hapus</button>
+                                                                class="px-3 py-1.5 text-xs rounded-lg border bg-white hover:bg-[#FFF2F2] disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                @if (!$canMutate) disabled
+                                                        title="{{ $finalized
+                                                            ? 'Project sudah difinalisasi, progress tidak dapat dihapus.'
+                                                            : ($alreadyConfirmed
+                                                                ? 'Progress sudah dikonfirmasi.'
+                                                                : '') }}" @endif>
+                                                                Hapus
+                                                            </button>
                                                         </form>
                                                     </div>
                                                 @endif
@@ -1272,6 +1340,7 @@
                                                 </div>
                                             </div>
 
+                                            {{-- FORM EDIT PROGRESS --}}
                                             <div id="editProgress-{{ $pr->id }}" class="hidden mb-3">
                                                 <form method="POST"
                                                     action="{{ route('progresses.update', $pr->id) }}"
@@ -1281,41 +1350,52 @@
                                                         required
                                                         class="rounded-xl bg-white border px-3 py-2 outline-none md:col-span-2"
                                                         placeholder="Nama progress"
-                                                        @unless ($isOwner) disabled @endunless>
+                                                        @unless ($canMutate) disabled @endunless>
                                                     <input type="date" name="start_date"
                                                         value="{{ old('start_date', $pr->start_date) }}" required
                                                         class="rounded-xl bg-white border px-3 py-2 outline-none"
-                                                        @unless ($isOwner) disabled @endunless>
+                                                        @unless ($canMutate) disabled @endunless>
                                                     <input type="date" name="end_date"
                                                         value="{{ old('end_date', $pr->end_date) }}" required
                                                         class="rounded-xl bg-white border px-3 py-2 outline-none"
-                                                        @unless ($isOwner) disabled @endunless>
-                                                   <input type="number" name="desired_percent"
-    min="1" max="100"
-    value="{{ old('desired_percent', $pr->desired_percent) }}"
-    placeholder="Target %"
-    class="rounded-xl bg-white border px-3 py-2 outline-none"
-    required
-    @unless ($isOwner) disabled @endunless>
+                                                        @unless ($canMutate) disabled @endunless>
+                                                    <input type="number" name="desired_percent" min="1"
+                                                        max="100"
+                                                        value="{{ old('desired_percent', $pr->desired_percent) }}"
+                                                        placeholder="Target %"
+                                                        class="rounded-xl bg-white border px-3 py-2 outline-none"
+                                                        required
+                                                        @unless ($canMutate) disabled @endunless>
 
                                                     <button
-                                                        class="h-[40px] min-w-[140px] px-4 rounded-full border-2 border-[#7A1C1C] bg-[#E2B9B9] text-xs font-semibold"
-                                                        @unless ($isOwner) disabled @endunless>
+                                                        class="h-[40px] min-w-[140px] px-4 rounded-full border-2 border-[#7A1C1C] bg-[#E2B9B9] text-xs font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+                                                        @unless ($canMutate)
+                                                disabled
+                                                title="{{ $finalized
+                                                    ? 'Project sudah difinalisasi, progress tidak dapat diubah.'
+                                                    : ($alreadyConfirmed
+                                                        ? 'Progress sudah dikonfirmasi.'
+                                                        : '') }}"
+                                            @endunless>
                                                         Simpan Perubahan
                                                     </button>
                                                 </form>
                                             </div>
 
+                                            {{-- UPDATE PROGRESS HARIAN --}}
                                             <div class="mt-3">
-                                                {{-- Update log progress (owner progress saja) --}}
                                                 @can('createUpdate', $pr)
                                                     @php
-                                                        $canUpdate = !$alreadyConfirmed && !$isOverdue;
-                                                        $updateDisabledReason = $isOverdue
-                                                            ? 'Tidak bisa update: sudah lewat timeline selesai'
-                                                            : ($alreadyConfirmed
-                                                                ? 'Sudah dikonfirmasi'
-                                                                : '');
+                                                        $updateDisabledReason = '';
+                                                        if ($finalized) {
+                                                            $updateDisabledReason =
+                                                                'Project sudah difinalisasi, progress tidak dapat diupdate.';
+                                                        } elseif ($isOverdue) {
+                                                            $updateDisabledReason =
+                                                                'Tidak bisa update: sudah lewat timeline selesai.';
+                                                        } elseif ($alreadyConfirmed) {
+                                                            $updateDisabledReason = 'Progress sudah dikonfirmasi.';
+                                                        }
                                                     @endphp
                                                     <form method="POST"
                                                         action="{{ route('progresses.updates.store', $pr->id) }}"
@@ -1330,24 +1410,16 @@
                                                             class="rounded-xl border px-3 py-2 text-sm w-28"
                                                             @unless ($canUpdate) disabled @endunless>
                                                         <button
-                                                            class="rounded-xl bg-[#7A1C1C] text-white px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                                                            class="rounded-xl bg-[#7A1C1C] text-white px-4 py-2 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
                                                             @unless ($canUpdate) disabled @endunless
                                                             title="{{ $updateDisabledReason }}">
                                                             Update Progress
                                                         </button>
                                                     </form>
                                                 @endcan
-
-                                                @if ($isOverdue && !$alreadyConfirmed)
-                                                    <div class="mt-2">
-                                                        <span
-                                                            class="inline-flex items-center rounded-full bg-red-100 text-red-700 px-3 py-1 text-xs font-semibold">
-                                                            Telat dari timeline
-                                                        </span>
-                                                    </div>
-                                                @endif
                                             </div>
 
+                                            {{-- KONFIRMASI --}}
                                             <div class="mt-3">
                                                 <div class="mt-2">
                                                     @if (!$alreadyConfirmed)
@@ -1356,8 +1428,12 @@
                                                             @csrf
                                                             <button
                                                                 class="rounded-xl bg-green-700 text-white px-4 py-2 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-                                                                {{ $canConfirm ? '' : 'disabled' }}
-                                                                title="{{ $isOwner ? 'Belum mencapai target' : 'Hanya pembuat progress (DIG) yang dapat konfirmasi' }}">
+                                                                @if (!$canConfirm) disabled @endif
+                                                                title="{{ $finalized
+                                                                    ? 'Project sudah difinalisasi, progress tidak dapat dikonfirmasi.'
+                                                                    : ($isOwner
+                                                                        ? 'Belum mencapai target'
+                                                                        : 'Hanya pembuat progress (DIG) yang dapat konfirmasi') }}">
                                                                 Konfirmasi
                                                             </button>
                                                         </form>
@@ -1392,6 +1468,7 @@
                                 </div>
                             </div>
 
+                            {{-- LINK DETAIL --}}
                             <div class="mt-4 flex justify-end">
                                 <a href="{{ route('dig.projects.show', $project->id) }}"
                                     class="inline-flex items-center gap-2 rounded-lg border border-[#7A1C1C] px-3 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-[#FFF2F2]">
@@ -1402,10 +1479,76 @@
                     @endforeach
                 </div>
             @endif
+
         </div>
 
 
     </div> {{-- /#pageWrapper --}}
+    {{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
+    <div id="confirmLogoutModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path
+                            d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+                        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-semibold">Konfirmasi Logout</div>
+                    <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
+                </div>
+            </div>
+            <div class="px-4 py-4 text-sm text-gray-700">
+                Yakin ingin logout dari akun ini?
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+                <button type="button" id="cancelLogoutBtn"
+                    class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                    Batal
+                </button>
+                <button type="button" id="confirmLogoutBtn"
+                    class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                    Ya, Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== MODAL KONFIRMASI HAPUS (PROJECT / PROGRESS) ===== --}}
+    <div id="confirmDeleteModal" class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#7A1C1C] text-white">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M11 15h2v2h-2zm0-8h2v6h-2z" />
+                        <path d="M12 2C6.49 2 2 6.49 2 12s4.49 10 10 10
+                                 10-4.49 10-10S17.51 2 12 2zm0 18
+                                 c-4.41 0-8-3.59-8-8s3.59-8 8-8
+                                 8 3.59 8 8-3.59 8-8 8z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="text-sm font-semibold">Konfirmasi Hapus</div>
+                    <div class="text-xs text-white/80">Aksi ini tidak bisa dibatalkan.</div>
+                </div>
+            </div>
+            <div class="px-4 py-4 text-sm text-gray-700" id="confirmDeleteMessage">
+                Yakin ingin menghapus data ini?
+            </div>
+            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+                <button type="button" id="cancelDeleteBtn"
+                    class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                    Batal
+                </button>
+                <button type="button" id="confirmDeleteBtn"
+                    class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                    Ya, Hapus
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         const sidebar = document.getElementById('sidebar');
@@ -1502,6 +1645,115 @@
                 if (el) el.classList.toggle('hidden');
             });
         });
+    </script>
+    <script>
+        (function() {
+            let pendingLogoutHref = null;
+            let pendingDeleteForm = null;
+
+            const logoutModal = document.getElementById('confirmLogoutModal');
+            const deleteModal = document.getElementById('confirmDeleteModal');
+            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
+
+            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+
+            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+
+            function openModal(modal) {
+                if (!modal) return;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                document.body.classList.add('overflow-hidden');
+            }
+
+            function closeModal(modal) {
+                if (!modal) return;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.classList.remove('overflow-hidden');
+            }
+
+            // ====== LOGOUT HANDLER ======
+            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    pendingLogoutHref = this.getAttribute('href');
+                    openModal(logoutModal);
+                });
+            });
+
+            confirmLogoutBtn?.addEventListener('click', function() {
+                if (pendingLogoutHref) {
+                    window.location.href = pendingLogoutHref;
+                }
+            });
+
+            cancelLogoutBtn?.addEventListener('click', function() {
+                pendingLogoutHref = null;
+                closeModal(logoutModal);
+            });
+
+            // Klik di luar card = tutup modal logout
+            logoutModal?.addEventListener('click', function(e) {
+                if (e.target === logoutModal) {
+                    pendingLogoutHref = null;
+                    closeModal(logoutModal);
+                }
+            });
+
+            // ====== DELETE HANDLER (project / progress) ======
+            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    pendingDeleteForm = this;
+
+                    const msg = this.getAttribute('data-message');
+                    if (msg && deleteMsgEl) {
+                        deleteMsgEl.textContent = msg;
+                    }
+
+                    openModal(deleteModal);
+                });
+            });
+
+            confirmDeleteBtn?.addEventListener('click', function() {
+                if (pendingDeleteForm) {
+                    const formToSubmit = pendingDeleteForm;
+                    pendingDeleteForm = null;
+                    closeModal(deleteModal);
+                    formToSubmit.submit();
+                }
+            });
+
+            cancelDeleteBtn?.addEventListener('click', function() {
+                pendingDeleteForm = null;
+                closeModal(deleteModal);
+            });
+
+            // Klik di luar card = tutup modal delete
+            deleteModal?.addEventListener('click', function(e) {
+                if (e.target === deleteModal) {
+                    pendingDeleteForm = null;
+                    closeModal(deleteModal);
+                }
+            });
+
+            // ESC key untuk nutup modal (kalau ada yang kebuka)
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
+                        pendingLogoutHref = null;
+                        closeModal(logoutModal);
+                    }
+                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
+                        pendingDeleteForm = null;
+                        closeModal(deleteModal);
+                    }
+                }
+            });
+        })();
     </script>
 
 </body>

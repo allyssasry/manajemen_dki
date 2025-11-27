@@ -53,12 +53,13 @@ class ProgressController extends Controller
 
         $projects = $base->latest('id')->get();
 
-        return view('dig.progresses', compact('projects'));
+        return view('semua.progresses', compact('projects'));
     }
 
     /**
      * POST /projects/{project}/progresses
      * Tambah progress baru ke project.
+     * route name: projects.progresses.store
      */
     public function store(Request $request, Project $project)
     {
@@ -93,6 +94,7 @@ class ProgressController extends Controller
             $target->notify(new ProgressChangedNotification($payload));
         }
 
+        // ✅ balik ke halaman yang barusan submit (progress page / detail)
         return back()->with('success','Progress berhasil ditambahkan.');
     }
 
@@ -105,10 +107,12 @@ class ProgressController extends Controller
     /**
      * PUT /progresses/{progress}
      * Edit metadata progress. Hanya pemilik (created_by) yang boleh.
+     * route name: progresses.update
      */
     public function update(Request $request, Progress $progress)
     {
-        $this->authorize('manage', $progress);
+        // ability disamakan dengan yang dipakai di update/confirm di tempat lain
+        $this->authorize('createUpdate', $progress);
 
         $data = $request->validate([
             'name'            => ['required','string','max:255'],
@@ -119,111 +123,101 @@ class ProgressController extends Controller
 
         $progress->update($data);
 
-        // Tidak wajib men-notify untuk perubahan metadata; kalau mau:
-        // $actor = $request->user();
-        // foreach (NotifyTargets::itFor($progress->project) as $target) {
-        //     $target->notify(new ProgressChangedNotification([
-        //         'type'          => 'progress_updated',
-        //         'project_id'    => $progress->project_id,
-        //         'project_name'  => $progress->project->name,
-        //         'progress_id'   => $progress->id,
-        //         'progress_name' => $progress->name,
-        //         'actor_id'      => $actor->id,
-        //         'actor_name'    => $actor->name ?? $actor->username ?? 'User',
-        //         'meta'          => ['scope' => 'metadata'],
-        //     ]));
-        // }
-
+        // ✅ tetap di halaman progress
         return back()->with('success', 'Progress berhasil diperbarui.');
     }
 
     /**
      * DELETE /progresses/{progress}
      * Hapus progress. Hanya pemilik yang boleh.
+     * route name: progresses.destroy
      */
-public function destroy(\App\Models\Progress $progress)
-{
-    // (opsional) kalau mau batasi hanya pembuat yang boleh hapus:
-    if ((int)$progress->created_by !== (int)auth()->id()) {
-        abort(403, 'Tidak boleh menghapus progress ini.');
+    public function destroy(Progress $progress)
+    {
+        // (opsional) batasi hanya pembuat yang boleh hapus:
+        if ((int)$progress->created_by !== (int)auth()->id()) {
+            abort(403, 'Tidak boleh menghapus progress ini.');
+        }
+
+        // Hapus dulu relasi terkait (kalau tidak pakai cascade)
+        if (method_exists($progress, 'updates')) {
+            $progress->updates()->delete();
+        }
+        if (method_exists($progress, 'notes')) {
+            $progress->notes()->delete();
+        }
+
+        $progress->delete();
+
+        // ✅ balik ke halaman yang memanggil (progress list / detail)
+        return back()->with('success', 'Progress berhasil dihapus.');
     }
 
-    $projectId = $progress->project_id; // supaya bisa redirect balik ke project-nya
-
-    // Hapus dulu relasi yang terkait (updates, notes, dsb) kalau pakai foreign key tanpa cascade
-    $progress->updates()->delete();
-    $progress->notes()->delete();
-
-    $progress->delete();
-
-    return redirect()
-        ->back()
-        ->with('success', 'Progress berhasil dihapus.');
-}
     /**
      * POST /progresses/{progress}/updates
      * Simpan update harian (realisasi %). Hanya pemilik progress yang boleh update.
-     * route name di view: progresses.updates.store
+     * route name: progresses.updates.store
      */
-  public function updatesStore(Request $request, Progress $progress)
-{
-    $this->authorize('manage', $progress);
+    public function updatesStore(Request $request, Progress $progress)
+    {
+        $this->authorize('createUpdate', $progress);
 
-    $data = $request->validate([
-        'update_date' => ['required','date'],
-        'percent'     => ['required','integer','min:0','max:100'],
-    ]);
-
-    // Cegah update lewat timeline selesai
-    if (
-        $progress->end_date &&
-        now()->startOfDay()->gt(
-            \Illuminate\Support\Carbon::parse($progress->end_date)->startOfDay()
-        )
-    ) {
-        return back()->withErrors([
-            'update' => 'Tidak bisa update: sudah lewat timeline selesai.',
+        $data = $request->validate([
+            'update_date' => ['required','date'],
+            'percent'     => ['required','integer','min:0','max:100'],
         ]);
+
+        // Cegah update lewat timeline selesai
+        if (
+            $progress->end_date &&
+            now()->startOfDay()->gt(
+                \Illuminate\Support\Carbon::parse($progress->end_date)->startOfDay()
+            )
+        ) {
+            return back()->withErrors([
+                'update' => 'Tidak bisa update: sudah lewat timeline selesai.',
+            ]);
+        }
+
+        // ✅ BOLEH update BERKALI-KALI di tanggal yang sama (di-overwrite)
+        $progress->updates()->updateOrCreate(
+            [
+                'update_date' => $data['update_date'],   // per hari
+            ],
+            [
+                'percent'    => $data['percent'],
+                'created_by' => Auth::id(),
+            ]
+        );
+
+        // === NOTIFIKASI ke IT: progress di-update ===
+        $project = $progress->project()->with(['developer','digitalBanking'])->first();
+        $actor   = $request->user();
+
+        $payload = [
+            'type'          => 'progress_updated',
+            'project_id'    => $project->id,
+            'project_name'  => $project->name,
+            'progress_id'   => $progress->id,
+            'progress_name' => $progress->name,
+            'percent'       => (int)$data['percent'],
+            'actor_id'      => $actor->id,
+            'actor_name'    => $actor->name ?? $actor->username ?? 'User',
+            'meta'          => ['update_date' => $data['update_date']],
+        ];
+
+        foreach (NotifyTargets::itFor($project) as $target) {
+            $target->notify(new ProgressChangedNotification($payload));
+        }
+
+        // ✅ tetap di halaman progress (dig.detail / dig.progresses / kd.progresses)
+        return back()->with('success', 'Update progress disimpan.');
     }
-
-    // ✅ BOLEH update BERKALI-KALI di tanggal yang sama (di-overwrite)
-    $upd = $progress->updates()->updateOrCreate(
-        [
-            'update_date' => $data['update_date'],   // per hari
-        ],
-        [
-            'percent'    => $data['percent'],
-            'created_by' => Auth::id(),
-        ]
-    );
-
-    // === NOTIFIKASI ke IT: progress di-update ===
-    $project = $progress->project()->with(['developer','digitalBanking'])->first();
-    $actor   = $request->user();
-
-    $payload = [
-        'type'          => 'progress_updated',
-        'project_id'    => $project->id,
-        'project_name'  => $project->name,
-        'progress_id'   => $progress->id,
-        'progress_name' => $progress->name,
-        'percent'       => (int)$data['percent'],
-        'actor_id'      => $actor->id,
-        'actor_name'    => $actor->name ?? $actor->username ?? 'User',
-        'meta'          => ['update_date' => $data['update_date']],
-    ];
-
-    foreach (NotifyTargets::itFor($project) as $target) {
-        $target->notify(new ProgressChangedNotification($payload));
-    }
-
-    return back()->with('success', 'Update progress disimpan.');
-}
-
 
     /**
      * POST /progresses/{progress}/notes
      * Simpan catatan.
+     * route name: progresses.notes.store (kalau ada)
      */
     public function notesStore(Request $request, Progress $progress)
     {
@@ -243,10 +237,11 @@ public function destroy(\App\Models\Progress $progress)
     /**
      * POST /progresses/{progress}/confirm
      * Konfirmasi progress jika realisasi >= target. Hanya pemilik yang boleh.
+     * route name: progresses.confirm
      */
     public function confirm(Progress $progress)
     {
-        $this->authorize('manage', $progress);
+        $this->authorize('createUpdate', $progress);
 
         if ($progress->confirmed_at) {
             return back()->with('success', 'Progress sudah dikonfirmasi sebelumnya.');
@@ -260,12 +255,14 @@ public function destroy(\App\Models\Progress $progress)
         );
 
         if ($latest < (int) $progress->desired_percent) {
-            return back()->withErrors(['Konfirmasi gagal: realisasi belum mencapai target.']);
+            return back()->withErrors([
+                'confirm' => 'Konfirmasi gagal: realisasi belum mencapai target.',
+            ]);
         }
 
         $progress->forceFill(['confirmed_at' => now()])->save();
 
-        // ===== Notifikasi ke DIG jika IT yang konfirmasi (sudah ada di kode kamu)
+        // ===== Notifikasi ke DIG jika IT yang konfirmasi
         $confirmer = Auth::user();
         $project   = $progress->project()->with(['digitalBanking','developer'])->first();
 
@@ -277,7 +274,7 @@ public function destroy(\App\Models\Progress $progress)
             $project->digitalBanking->notify(new ProgressConfirmed($progress, $confirmer));
         }
 
-        // ===== NEW: Notifikasi ke IT juga (agar feed IT melihat konfirmasi progress)
+        // ===== NEW: Notifikasi ke IT juga (feed IT melihat konfirmasi progress)
         $payloadIT = [
             'type'          => 'progress_confirmed',
             'project_id'    => $project->id,
@@ -302,7 +299,7 @@ public function destroy(\App\Models\Progress $progress)
             },
             'digitalBanking',
             'developer',
-             'attachments', 
+            'attachments',
         ])->first();
 
         $allDone = $project->progresses->every(function ($pr) {
