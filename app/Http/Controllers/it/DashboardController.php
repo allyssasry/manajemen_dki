@@ -77,7 +77,7 @@ class DashboardController extends Controller
             ->count();
 
         $notMeetCount = Project::archivedStrict()
-            ->where('meets_requirement', 0)
+            ->where('meets_requireme', 0)
             ->count();
 
         return view('it.dashboard', [
