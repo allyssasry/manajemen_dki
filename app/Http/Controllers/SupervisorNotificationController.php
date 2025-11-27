@@ -4,13 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Notifications\DatabaseNotification;
 
 class SupervisorNotificationController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * HALAMAN LIST NOTIF KEPALA DIVISI / SUPERVISOR
+     */
     public function index(Request $request)
     {
         $user = $request->user();
-        if (!$user) abort(401);
+        if (!$user) {
+            abort(401);
+        }
+
         if (!in_array($user->role, ['kepala_divisi', 'supervisor'])) {
             abort(403, 'Khusus Kepala Divisi / Supervisor.');
         }
@@ -23,26 +35,17 @@ class SupervisorNotificationController extends Controller
         $todayStartUtc = $todayStartJak->clone()->timezone('UTC');
         $todayEndUtc   = $todayEndJak->clone()->timezone('UTC');
 
-        // === TYPES YANG DIBUTUHKAN KEPALA DIVISI ===
+        // === TIPE NOTIF UNTUK KD / SUPERVISOR ===
         $typesForKD = [
-            'dig_project_created',      // DIG membuat project
-            'it_project_created',       // IT membuat project
-            'dig_completion_decision', // DIG konfirmasi selesai / tidak
-            // kalau masih pakai type lama 'kepala_divisi_status' silakan tambahkan:
-            // 'kepala_divisi_status',
+            'dig_project_created',       // DIG membuat project
+            'it_project_created',        // IT membuat project
+            'dig_completion_decision',   // DIG konfirmasi selesai / tidak
+            // 'kepala_divisi_status',    // kalau masih ada type lama, boleh di-uncomment
         ];
 
-        // === BASE QUERY: notifikasi milik user ini,
-        //      hanya type yang relevan, optional target_role
+        // BASE QUERY: notifikasi milik user ini, hanya type yang relevan
         $base = $user->notifications()
             ->whereIn('data->type', $typesForKD);
-
-        // kalau kamu ingin Kepala Divisi cuma baca yang benar-benar ditandai untuknya:
-        // ->where(function ($q) {
-        //     $q->whereNull('data->target_role')
-        //       ->orWhere('data->target_role', 'kepala_divisi')
-        //       ->orWhere('data->target_role', 'supervisor');
-        // });
 
         // === HARI INI ===
         $today = (clone $base)
@@ -50,11 +53,12 @@ class SupervisorNotificationController extends Controller
             ->latest()
             ->get();
 
-        // === SEMUA / RIWAYAT (tanpa batas hari, atau bisa kamu batasi 30 hari) ===
+        // === RIWAYAT (misal 50 terakhir) ===
         $notifications = (clone $base)
             ->latest()
             ->paginate(50);
 
+        // === JUMLAH BELUM TERBACA (untuk badge) ===
         $unreadCount = $user->unreadNotifications()
             ->whereIn('data->type', $typesForKD)
             ->count();
@@ -64,5 +68,61 @@ class SupervisorNotificationController extends Controller
             'notifications' => $notifications,
             'unreadCount'   => $unreadCount,
         ]);
+    }
+
+    /**
+     * TANDAI SEMUA NOTIF KD SEBAGAI TERBACA
+     * POST /kd/notifications/read-all
+     */
+    public function readAll(Request $request)
+    {
+        $user = $request->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        if (!in_array($user->role, ['kepala_divisi', 'supervisor'])) {
+            abort(403, 'Khusus Kepala Divisi / Supervisor.');
+        }
+
+        $typesForKD = [
+            'dig_project_created',
+            'it_project_created',
+            'dig_completion_decision',
+            // 'kepala_divisi_status',
+        ];
+
+        $user->unreadNotifications()
+            ->whereIn('data->type', $typesForKD)
+            ->update(['read_at' => now()]);
+
+        return back();
+    }
+
+    /**
+     * TANDAI SATU NOTIF SEBAGAI TERBACA
+     * POST /kd/notifications/{notification}/read
+     */
+    public function read(Request $request, DatabaseNotification $notification)
+    {
+        $user = $request->user();
+        if (!$user) {
+            abort(401);
+        }
+
+        if (!in_array($user->role, ['kepala_divisi', 'supervisor'])) {
+            abort(403, 'Khusus Kepala Divisi / Supervisor.');
+        }
+
+        // pastikan notif ini memang milik user yang login
+        if ((int)$notification->notifiable_id !== (int)$user->id) {
+            abort(403);
+        }
+
+        if (is_null($notification->read_at)) {
+            $notification->forceFill(['read_at' => now()])->save();
+        }
+
+        return back();
     }
 }

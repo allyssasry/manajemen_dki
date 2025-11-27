@@ -17,10 +17,17 @@
 <body class="min-h-screen bg-[#FFFAFA] text-gray-900">
 
 @php
+  use App\Models\Project;
+  use App\Models\Progress;
+
   /* ========= USER, AVATAR, ROLE & RUTE DINAMIS ========= */
   $me   = $me ?? auth()->user()?->fresh();
   $role = $me?->role;
-  $roleLabel = $role === 'it' ? 'IT' : ($role === 'digital_banking' ? 'DIG' : ($role === 'supervisor' ? 'Supervisor' : 'User'));
+  $roleLabel = $role === 'it'
+    ? 'IT'
+    : ($role === 'digital_banking'
+        ? 'DIG'
+        : ($role === 'supervisor' ? 'Supervisor' : 'User'));
 
   // Avatar fallback
   $initial = urlencode(mb_substr($me?->name ?? $me?->username ?? 'U', 0, 1));
@@ -50,13 +57,105 @@
       'supervisor'      => 'supervisor.notifications',
       default           => 'dig.notifications',
   };
+
+  /* ========= OLAH DATA NOTIFIKASI UNTUK IT ========= */
+  // Koleksi notif "Hari Ini" (dari controller)
+  $todayCollection = ($today ?? collect());
+
+  // semua item "sebelum hari ini" (maks 7 hari terakhir dari controller)
+  $allItems = isset($notifications)
+    ? collect($notifications->items() ?? [])
+    : collect();
+
+  // hindari duplikasi: buang dari $allItems yang sudah ada di $todayCollection
+  $previous = $allItems->reject(function ($n) use ($todayCollection) {
+    return $todayCollection->contains('id', $n->id);
+  });
+
+  // ==== FILTER: sembunyikan notif yang project/progress-nya sudah dihapus ====
+  $combined = $todayCollection->concat($previous);
+
+  // ambil daftar project_id yang muncul di data notif
+  $projectIds = $combined
+    ->map(function ($n) {
+      return data_get($n->data, 'project_id');
+    })
+    ->filter()
+    ->unique()
+    ->values()
+    ->all();
+
+  // ambil daftar progress_id yang muncul di data notif
+  $progressIds = $combined
+    ->map(function ($n) {
+      return data_get($n->data, 'progress_id');
+    })
+    ->filter()
+    ->unique()
+    ->values()
+    ->all();
+
+  // project yang masih eksis di DB
+  $existingProjectIds = !empty($projectIds)
+    ? Project::whereIn('id', $projectIds)
+        ->pluck('id')
+        ->map(function ($id) { return (int) $id; })
+        ->all()
+    : [];
+
+  // progress yang masih eksis di DB
+  $existingProgressIds = !empty($progressIds)
+    ? Progress::whereIn('id', $progressIds)
+        ->pluck('id')
+        ->map(function ($id) { return (int) $id; })
+        ->all()
+    : [];
+
+  // fungsi filter: hide notif yang referensinya sudah tidak ada
+  $filterFn = function ($n) use ($existingProjectIds, $existingProgressIds) {
+    $pid   = (int) (data_get($n->data, 'project_id') ?? 0);
+    $prgId = (int) (data_get($n->data, 'progress_id') ?? 0);
+
+    // notif umum tanpa project_id & progress_id tetap tampil
+    if ($pid === 0 && $prgId === 0) {
+      return true;
+    }
+
+    // punya project_id tapi project sudah tidak ada => tidak ditampilkan
+    if ($pid !== 0 && !in_array($pid, $existingProjectIds, true)) {
+      return false;
+    }
+
+    // punya progress_id tapi progress sudah tidak ada => tidak ditampilkan
+    if ($prgId !== 0 && !in_array($prgId, $existingProgressIds, true)) {
+      return false;
+    }
+
+    return true;
+  };
+
+  // apply filter ke Hari Ini & sebelumnya
+  $todayCollection = $todayCollection->filter($filterFn)->values();
+  $previous        = $previous->filter($filterFn)->values();
+
+  // hitung unread
+  $todayUnread    = $todayCollection->whereNull('read_at')->count();
+  $previousUnread = $previous->whereNull('read_at')->count();
+  $totalUnread    = $todayUnread + $previousUnread;
+
+  $hasAny = $todayCollection->count() > 0 || $previous->count() > 0;
+
+  // group riwayat per tanggal (untuk section "Riwayat")
+  $groupedByDate = $previous->groupBy(function($n) {
+    $c = optional($n->created_at)->timezone('Asia/Jakarta');
+    return $c ? $c->format('d M Y') : '-';
+  });
 @endphp
 
 {{-- ============== SIDEBAR MINI (RAIL) ============== --}}
 @php $iconColor = '#7A1C1C'; @endphp
-{{-- ================== MINI SIDEBAR (IT) ================== --}}
 @php
-    $isItDashboardActive = request()->routeIs('it.dashboard');
+  $isItDashboardActive = request()->routeIs('it.dashboard');
 @endphp
 
 <aside id="miniSidebar"
@@ -87,14 +186,19 @@
       </svg>
     </a>
 
-    {{-- NOTIFIKASI IT --}}
+    {{-- NOTIFIKASI IT (DENGAN BADGE ANGKA) --}}
     <a href="{{ route('it.notifications') }}"
-       class="p-2 rounded-lg {{ request()->routeIs('it.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
+       class="relative p-2 rounded-lg {{ request()->routeIs('it.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] border border-red-200' : 'text-gray-800 hover:bg-[#FFF2F2]' }}"
        title="Notifikasi" aria-label="Notifikasi">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
            fill="{{ request()->routeIs('it.notifications*') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
         <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
       </svg>
+      @if($totalUnread > 0)
+        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center w-5 h-5 rounded-full bg-[#7A1C1C] text-white text-[10px] font-semibold">
+          {{ $totalUnread > 99 ? '99+' : $totalUnread }}
+        </span>
+      @endif
     </a>
 
     {{-- ARSIP (global) --}}
@@ -113,13 +217,13 @@
        class="p-2 rounded-lg {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2]' : 'hover:bg-[#FFF2F2]' }}"
        title="Pengaturan Akun" aria-label="Pengaturan Akun">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1c-.6-.35-1.22-.6-1.87-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/>
-      </svg>
+        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
+            </svg>
     </a>
 
-<a href="/logout"
-   data-confirm-logout="true"
-   class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
+    <a href="/logout"
+       data-confirm-logout="true"
+       class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
         <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
         <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
@@ -174,16 +278,21 @@
       <span>Project</span>
     </a>
 
-    {{-- NOTIFIKASI IT --}}
+    {{-- NOTIFIKASI IT (DENGAN BADGE ANGKA) --}}
     <div class="px-5 text-[11px] uppercase tracking-wider text-gray-400 mt-5 mb-1">Notifikasi</div>
     <a href="{{ route('it.notifications') }}"
-       class="flex items-center gap-3 px-5 py-2.5 transition-all duration-150 rounded-xl
+       class="relative flex items-center gap-3 px-5 py-2.5 transition-all duration-150 rounded-xl
               {{ request()->routeIs('it.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
            fill="{{ request()->routeIs('it.notifications*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
         <path d="M12 24a2.5 2.5 0 0 0 2.45-2H9.55A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
       </svg>
       <span>Notifikasi</span>
+      @if($totalUnread > 0)
+        <span class="ml-2 inline-flex items-center justify-center min-w-[1.5rem] h-5 rounded-full bg-[#7A1C1C] text-white text-[11px] px-1.5">
+          {{ $totalUnread > 99 ? '99+' : $totalUnread }}
+        </span>
+      @endif
     </a>
 
     {{-- ARSIP --}}
@@ -205,7 +314,7 @@
        class="flex items-center gap-3 px-3 py-2 rounded-xl transition
               {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2]' }}">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1c-.6-.35-1.22-.6-1.87-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
+        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
       </svg>
       <span>Pengaturan Akun</span>
     </a>
@@ -223,7 +332,6 @@
   </div>
 </aside>
 
-
 {{-- WRAPPER --}}
 <div id="pageWrapper" class="transition-all duration-300 ml-0">
 
@@ -232,6 +340,11 @@
     <div class="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-lg md:text-xl font-semibold text-white select-none">Notifikasi</span>
+        @if($totalUnread > 0)
+          <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 rounded-full bg-white text-[#7A1C1C] text-xs px-2 border border-red-100">
+            {{ $totalUnread > 99 ? '99+' : $totalUnread }}
+          </span>
+        @endif
       </div>
 
       <div class="hidden md:flex items-center gap-3 pl-4 border-l border-white/30">
@@ -245,9 +358,10 @@
     </div>
   </header>
 
-  {{-- HEADER LIST (BADGE TOTAL IT UNREAD) --}}
+  {{-- HEADER LIST (badge + tandai semua) --}}
   <div class="max-w-5xl mx-auto px-5 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
+      {{-- (kalau mau, bisa ditambah info lain di sini) --}}
     </div>
     <form method="POST" action="{{ route('it.notifications.readAll') }}">
       @csrf
@@ -259,26 +373,8 @@
 
   {{-- LIST NOTIFIKASI --}}
   <main class="max-w-5xl mx-auto px-5 py-6">
-    @php
-      $todayCollection = ($today ?? collect());
-      $todayUnread = $todayCollection->whereNull('read_at')->count();
-
-      // semua item "sebelum hari ini" (sudah difilter 7 hari terakhir di controller)
-      $allItems = isset($notifications)
-        ? collect($notifications->items() ?? [])
-        : collect();
-
-      // reject yang sudah muncul di "Hari Ini"
-      $previous = $allItems->reject(function($n) use ($todayCollection) {
-        return $todayCollection->contains('id', $n->id);
-      });
-
-      // flag: apakah ADA notifikasi sama sekali?
-      $hasAny = $todayCollection->count() > 0 || $previous->count() > 0;
-    @endphp
-
-    {{-- KALAU BENAR-BENAR TIDAK ADA NOTIFIKASI --}}
     @if(!$hasAny)
+      {{-- KALAU BENAR-BENAR TIDAK ADA NOTIFIKASI --}}
       <div class="py-12 text-center text-sm text-gray-600">
         Belum ada notifikasi.
       </div>
@@ -319,7 +415,9 @@
                       <div class="mt-1 text-sm">
                         <div><span class="font-semibold">Nama Project</span>: {{ $pName }}</div>
                         <div class="mt-1"><span class="font-semibold">Tanggal</span>: {{ $dateText }} • {{ $timeText }} WIB</div>
-                        @if($message) <div class="text-gray-700 mt-1">{{ $message }}</div> @endif
+                        @if($message)
+                          <div class="text-gray-700 mt-1">{{ $message }}</div>
+                        @endif
                       </div>
                     @elseif($type === 'dig_completion_decision')
                       @php
@@ -336,7 +434,9 @@
                           </span>
                         </div>
                         <div class="mt-1"><span class="font-semibold">Tanggal</span>: {{ $dateText }} • {{ $timeText }} WIB</div>
-                        @if($message) <div class="text-gray-700 mt-1">{{ $message }}</div> @endif
+                        @if($message)
+                          <div class="text-gray-700 mt-1">{{ $message }}</div>
+                        @endif
                       </div>
                     @else
                       <div class="text-[15px] font-semibold">Notifikasi</div>
@@ -364,27 +464,26 @@
                 </div>
               </div>
             @empty
-              {{-- seharusnya tidak masuk ke sini karena $todayCollection->count() > 0 --}}
             @endforelse
           </div>
         </div>
       @endif
 
-      {{-- RIWAYAT (DIBAGI PER TANGGAL, MAKS 7 HARI TERAKHIR) --}}
-      @php
-        $groupedByDate = $previous->groupBy(function($n) {
-          $c = optional($n->created_at)->timezone('Asia/Jakarta');
-          return $c ? $c->format('d M Y') : '-';
-        });
-      @endphp
-
+      {{-- RIWAYAT (maks 7 hari ke belakang, selain Hari Ini) --}}
       @if($groupedByDate->count() > 0)
         <div class="mt-8 space-y-6">
           @foreach($groupedByDate as $dateLabel => $items)
-            {{-- Judul per tanggal --}}
+            @php
+              $unreadInGroup = $items->whereNull('read_at')->count();
+            @endphp
             <div>
               <div class="mb-2 flex items-center justify-between">
                 <h2 class="text-base font-semibold">{{ $dateLabel }}</h2>
+                @if($unreadInGroup > 0)
+                  <span class="inline-flex items-center justify-center min-w-[1.5rem] h-6 rounded-full bg-[#7A1C1C] text-white text-xs px-2">
+                    {{ $unreadInGroup > 99 ? '99+' : $unreadInGroup }}
+                  </span>
+                @endif
               </div>
 
               <div class="space-y-3">
@@ -409,7 +508,9 @@
                           <div class="text-[15px] font-semibold">Project Baru Dibuat</div>
                           <div class="mt-1 text-sm">
                             <div><span class="font-semibold">Nama Project</span>: {{ $pName }}</div>
-                            @if($message) <div class="text-gray-700 mt-1">{{ $message }}</div> @endif
+                            @if($message)
+                              <div class="text-gray-700 mt-1">{{ $message }}</div>
+                            @endif
                           </div>
                         @elseif($type === 'dig_completion_decision')
                           @php
@@ -425,7 +526,9 @@
                                 {{ $statusLabel }}
                               </span>
                             </div>
-                            @if($message) <div class="text-gray-700 mt-1">{{ $message }}</div> @endif
+                            @if($message)
+                              <div class="text-gray-700 mt-1">{{ $message }}</div>
+                            @endif
                           </div>
                         @else
                           <div class="text-[15px] font-semibold">Notifikasi</div>
@@ -458,7 +561,7 @@
         </div>
       @endif
 
-      {{-- PAGINATION (kalau mau tetap pakai) --}}
+      {{-- PAGINATION (kalau masih mau dipakai) --}}
       @if(isset($notifications) && $notifications->lastPage() > 1)
         <div class="mt-6">
           {{ $notifications->links() }}
@@ -467,39 +570,41 @@
     @endif
   </main>
 </div> {{-- /pageWrapper --}}
- {{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
-    <div id="confirmLogoutModal"
-         class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
-        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
-            <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-                        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold">Konfirmasi Logout</div>
-                    <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
-                </div>
-            </div>
-            <div class="px-4 py-4 text-sm text-gray-700">
-                Yakin ingin logout dari akun ini?
-            </div>
-            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
-                <button type="button"
-                        id="cancelLogoutBtn"
-                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
-                    Batal
-                </button>
-                <button type="button"
-                        id="confirmLogoutBtn"
-                        class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
-                    Ya, Logout
-                </button>
-            </div>
-        </div>
+
+{{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
+<div id="confirmLogoutModal"
+     class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+  <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+    <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
+      <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+        <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+          <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
+        </svg>
+      </div>
+      <div class="flex-1">
+        <div class="text-sm font-semibold">Konfirmasi Logout</div>
+        <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
+      </div>
     </div>
+    <div class="px-4 py-4 text-sm text-gray-700">
+      Yakin ingin logout dari akun ini?
+    </div>
+    <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+      <button type="button"
+              id="cancelLogoutBtn"
+              class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+        Batal
+      </button>
+      <button type="button"
+              id="confirmLogoutBtn"
+              class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+        Ya, Logout
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
   const sidebar      = document.getElementById('sidebar');
   const sidebarClose = document.getElementById('sidebarCloseBtn');
@@ -579,114 +684,115 @@
   window.addEventListener('resize', syncOnResize);
   firstPaint();
 </script>
- <script>
-        (function () {
-            let pendingLogoutHref = null;
-            let pendingDeleteForm = null;
 
-            const logoutModal = document.getElementById('confirmLogoutModal');
-            const deleteModal = document.getElementById('confirmDeleteModal');
-            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
+<script>
+  (function () {
+    let pendingLogoutHref = null;
+    let pendingDeleteForm = null;
 
-            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
-            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+    const logoutModal = document.getElementById('confirmLogoutModal');
+    const deleteModal = document.getElementById('confirmDeleteModal');
+    const deleteMsgEl = document.getElementById('confirmDeleteMessage');
 
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+    const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+    const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
 
-            function openModal(modal) {
-                if (!modal) return;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.classList.add('overflow-hidden');
-            }
+    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+    const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-            function closeModal(modal) {
-                if (!modal) return;
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.classList.remove('overflow-hidden');
-            }
+    function openModal(modal) {
+      if (!modal) return;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      document.body.classList.add('overflow-hidden');
+    }
 
-            // ====== LOGOUT HANDLER ======
-            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    pendingLogoutHref = this.getAttribute('href');
-                    openModal(logoutModal);
-                });
-            });
+    function closeModal(modal) {
+      if (!modal) return;
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+      document.body.classList.remove('overflow-hidden');
+    }
 
-            confirmLogoutBtn?.addEventListener('click', function () {
-                if (pendingLogoutHref) {
-                    window.location.href = pendingLogoutHref;
-                }
-            });
+    // ====== LOGOUT HANDLER ======
+    document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        pendingLogoutHref = this.getAttribute('href');
+        openModal(logoutModal);
+      });
+    });
 
-            cancelLogoutBtn?.addEventListener('click', function () {
-                pendingLogoutHref = null;
-                closeModal(logoutModal);
-            });
+    confirmLogoutBtn?.addEventListener('click', function () {
+      if (pendingLogoutHref) {
+        window.location.href = pendingLogoutHref;
+      }
+    });
 
-            // Klik di luar card = tutup modal logout
-            logoutModal?.addEventListener('click', function (e) {
-                if (e.target === logoutModal) {
-                    pendingLogoutHref = null;
-                    closeModal(logoutModal);
-                }
-            });
+    cancelLogoutBtn?.addEventListener('click', function () {
+      pendingLogoutHref = null;
+      closeModal(logoutModal);
+    });
 
-            // ====== DELETE HANDLER (project / progress) ======
-            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    pendingDeleteForm = this;
+    // Klik di luar card = tutup modal logout
+    logoutModal?.addEventListener('click', function (e) {
+      if (e.target === logoutModal) {
+        pendingLogoutHref = null;
+        closeModal(logoutModal);
+      }
+    });
 
-                    const msg = this.getAttribute('data-message');
-                    if (msg && deleteMsgEl) {
-                        deleteMsgEl.textContent = msg;
-                    }
+    // ====== DELETE HANDLER (project / progress) – opsional, dipakai di halaman lain ======
+    document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        pendingDeleteForm = this;
 
-                    openModal(deleteModal);
-                });
-            });
+        const msg = this.getAttribute('data-message');
+        if (msg && deleteMsgEl) {
+          deleteMsgEl.textContent = msg;
+        }
 
-            confirmDeleteBtn?.addEventListener('click', function () {
-                if (pendingDeleteForm) {
-                    const formToSubmit = pendingDeleteForm;
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                    formToSubmit.submit();
-                }
-            });
+        openModal(deleteModal);
+      });
+    });
 
-            cancelDeleteBtn?.addEventListener('click', function () {
-                pendingDeleteForm = null;
-                closeModal(deleteModal);
-            });
+    confirmDeleteBtn?.addEventListener('click', function () {
+      if (pendingDeleteForm) {
+        const formToSubmit = pendingDeleteForm;
+        pendingDeleteForm = null;
+        closeModal(deleteModal);
+        formToSubmit.submit();
+      }
+    });
 
-            // Klik di luar card = tutup modal delete
-            deleteModal?.addEventListener('click', function (e) {
-                if (e.target === deleteModal) {
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                }
-            });
+    cancelDeleteBtn?.addEventListener('click', function () {
+      pendingDeleteForm = null;
+      closeModal(deleteModal);
+    });
 
-            // ESC key untuk nutup modal (kalau ada yang kebuka)
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
-                        pendingLogoutHref = null;
-                        closeModal(logoutModal);
-                    }
-                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
-                        pendingDeleteForm = null;
-                        closeModal(deleteModal);
-                    }
-                }
-            });
-        })();
-    </script>
+    // Klik di luar card = tutup modal delete
+    deleteModal?.addEventListener('click', function (e) {
+      if (e.target === deleteModal) {
+        pendingDeleteForm = null;
+        closeModal(deleteModal);
+      }
+    });
+
+    // ESC key untuk nutup modal (kalau ada yang kebuka)
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') {
+        if (logoutModal && !logoutModal.classList.contains('hidden')) {
+          pendingLogoutHref = null;
+          closeModal(logoutModal);
+        }
+        if (deleteModal && !deleteModal.classList.contains('hidden')) {
+          pendingDeleteForm = null;
+          closeModal(deleteModal);
+        }
+      }
+    });
+  })();
+</script>
 </body>
 </html>

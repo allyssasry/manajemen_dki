@@ -396,3 +396,17 @@ Route::middleware(['auth'])->prefix('semua')->name('semua.')->group(function () 
     Route::put('/projects/{project}', [ProjectController::class, 'update'])
         ->name('projects.update');
 });
+
+Route::middleware(['auth'])->group(function () {
+    // HALAMAN NOTIF KEPALA DIVISI
+    Route::get('/kd/notifications', [SupervisorNotificationController::class, 'index'])
+        ->name('kd.notifications');
+
+    // TANDAI SEMUA SEBAGAI TERBACA
+    Route::post('/kd/notifications/read-all', [SupervisorNotificationController::class, 'readAll'])
+        ->name('kd.notifications.readAll');
+
+    // TANDAI SATU NOTIF SEBAGAI TERBACA
+    Route::post('/kd/notifications/{notification}/read', [SupervisorNotificationController::class, 'read'])
+        ->name('kd.notifications.read');
+});

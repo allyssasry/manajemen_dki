@@ -17,6 +17,9 @@
 
 <body class="min-h-screen bg-[#FFFAFA] text-gray-900">
 @php
+  use App\Models\Project;   // <-- TAMBAHAN
+  use App\Models\Progress;  // <-- TAMBAHAN
+
   $me   = $me ?? auth()->user()?->fresh();
   $role = $me?->role;
   $roleLabel = $role === 'it' ? 'IT' : ($role === 'digital_banking' ? 'DIG' : ($role === 'supervisor' ? 'Supervisor' : 'User'));
@@ -55,7 +58,7 @@
            title="Dashboard" aria-label="Dashboard">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
                  fill="{{ request()->routeIs('dig.dashboard') ? '#7A1C1C' : 'currentColor' }}" viewBox="0 0 24 24">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
         </a>
 
@@ -96,15 +99,14 @@
            class="p-2 rounded-lg {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C]' : 'hover:bg-[#FFF2F2] text-gray-800' }}"
            title="Pengaturan Akun" aria-label="Pengaturan Akun">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                    d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1c-.6-.35-1.22-.6-1.87-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
+                        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
             </svg>
         </a>
 
         {{-- LOGOUT --}}
-<a href="/logout"
-   data-confirm-logout="true"
-   class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
+        <a href="/logout"
+           data-confirm-logout="true"
+           class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" viewBox="0 0 24 24" fill="black">
                 <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
                 <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
@@ -144,7 +146,7 @@
                   {{ request()->routeIs('dig.dashboard') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
                  fill="{{ request()->routeIs('dig.dashboard') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
             <span>Dashboard</span>
         </a>
@@ -168,7 +170,7 @@
                   {{ request()->routeIs('dig.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
                  fill="{{ request()->routeIs('dig.notifications*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-          <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
+              <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
             </svg>
             <span>Notifikasi</span>
         </a>
@@ -191,22 +193,21 @@
            class="flex items-center gap-3 px-3 py-2 rounded-xl
                   {{ request()->routeIs('account.setting*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'text-gray-800 hover:bg-[#FFF2F2]' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" viewBox="0 0 24 24" fill="currentColor">
-                <path
-                    d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z" />
+        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
             </svg>
             <span>Pengaturan Akun</span>
         </a>
 
-    <a href="/logout"
-       data-confirm-logout="true"
-       class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
-       title="Log Out" aria-label="Log Out">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
-        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
-      </svg>
-      <span>Log Out</span>
-    </a>
+        <a href="/logout"
+           data-confirm-logout="true"
+           class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
+           title="Log Out" aria-label="Log Out">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
+            <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+            <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
+          </svg>
+          <span>Log Out</span>
+        </a>
     </div>
 </aside>
 
@@ -245,7 +246,7 @@
     {{-- HEADER LIST --}}
     <div class="py-3 flex items-center justify-between">
       <div class="flex items-center gap-3">
-      
+        {{-- (bisa tambahin badge total unread kalau mau) --}}
       </div>
 
       <form method="POST" action="{{ route('dig.notifications.readAll') }}">
@@ -292,6 +293,52 @@
             $createdJak = optional($n->created_at)->timezone('Asia/Jakarta');
             return $createdJak && $createdJak->gte($sevenDaysAgoJak);
           });
+
+        // ====== HAPUS NOTIFIKASI YANG PROJECT / PROGRESS-NYA SUDAH DIHAPUS ======
+        // Ambil semua project_id & progress_id dari data notif
+        $projectIds = $filtered
+          ->map(fn($n) => data_get($n->data, 'project_id'))
+          ->filter()
+          ->unique()
+          ->values()
+          ->all();
+
+        $progressIds = $filtered
+          ->map(fn($n) => data_get($n->data, 'progress_id'))
+          ->filter()
+          ->unique()
+          ->values()
+          ->all();
+
+        $existingProjectIds = !empty($projectIds)
+          ? Project::whereIn('id', $projectIds)->pluck('id')->map(fn($id) => (int) $id)->all()
+          : [];
+
+        $existingProgressIds = !empty($progressIds)
+          ? Progress::whereIn('id', $progressIds)->pluck('id')->map(fn($id) => (int) $id)->all()
+          : [];
+
+        $filtered = $filtered->filter(function($n) use ($existingProjectIds, $existingProgressIds) {
+          $pid   = (int) (data_get($n->data, 'project_id') ?? 0);
+          $prgId = (int) (data_get($n->data, 'progress_id') ?? 0);
+
+          // Kalau notif tidak punya project_id & progress_id, biarkan tampil (notif umum)
+          if ($pid === 0 && $prgId === 0) {
+            return true;
+          }
+
+          // Kalau punya project_id tapi project sudah dihapus => sembunyikan notif
+          if ($pid !== 0 && !in_array($pid, $existingProjectIds, true)) {
+            return false;
+          }
+
+          // Kalau punya progress_id tapi progress sudah dihapus => sembunyikan notif
+          if ($prgId !== 0 && !in_array($prgId, $existingProgressIds, true)) {
+            return false;
+          }
+
+          return true;
+        });
 
         // Group by tanggal (YYYY-mm-dd), lalu sort desc
         $groupedByDate = $filtered
@@ -474,39 +521,40 @@
     </main>
   </div>
 </div>
- {{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
-    <div id="confirmLogoutModal"
-         class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
-        <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
-            <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
-                        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
-                    </svg>
-                </div>
-                <div class="flex-1">
-                    <div class="text-sm font-semibold">Konfirmasi Logout</div>
-                    <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
-                </div>
+
+{{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
+<div id="confirmLogoutModal"
+     class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
+    <div class="mx-4 w-full max-w-sm rounded-2xl bg-white shadow-xl border border-red-100 overflow-hidden">
+        <div class="flex items-center gap-3 px-4 py-3 bg-[#8D2121] text-white">
+            <div class="flex h-8 w-8 items-center justify-center rounded-full bg-white/10">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
+                    <path d="M14 12l5-5v3h4v4h-4v3l-5-5z"/>
+                </svg>
             </div>
-            <div class="px-4 py-4 text-sm text-gray-700">
-                Yakin ingin logout dari akun ini?
-            </div>
-            <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
-                <button type="button"
-                        id="cancelLogoutBtn"
-                        class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
-                    Batal
-                </button>
-                <button type="button"
-                        id="confirmLogoutBtn"
-                        class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
-                    Ya, Logout
-                </button>
+            <div class="flex-1">
+                <div class="text-sm font-semibold">Konfirmasi Logout</div>
+                <div class="text-xs text-white/80">Anda akan keluar dari akun ini.</div>
             </div>
         </div>
+        <div class="px-4 py-4 text-sm text-gray-700">
+            Yakin ingin logout dari akun ini?
+        </div>
+        <div class="flex justify-end gap-2 px-4 py-3 bg-[#FFF7F7]">
+            <button type="button"
+                    id="cancelLogoutBtn"
+                    class="inline-flex items-center justify-center rounded-xl border border-red-200 px-4 py-1.5 text-xs font-semibold text-[#7A1C1C] bg-white hover:bg-red-50">
+                Batal
+            </button>
+            <button type="button"
+                    id="confirmLogoutBtn"
+                    class="inline-flex items-center justify-center rounded-xl border border-[#7A1C1C] px-4 py-1.5 text-xs font-semibold text-white bg-[#8D2121] hover:bg-[#741B1B]">
+                Ya, Logout
+            </button>
+        </div>
     </div>
+</div>
 
 {{-- ================== SCRIPT ================== --}}
 <script>
@@ -601,223 +649,114 @@
   window.addEventListener('resize', syncOnResize);
   firstPaint();
 </script>
-    <script>
-        (function () {
-            let pendingLogoutHref = null;
-            let pendingDeleteForm = null;
+<script>
+  (function () {
+      let pendingLogoutHref = null;
+      let pendingDeleteForm = null;
 
-            const logoutModal = document.getElementById('confirmLogoutModal');
-            const deleteModal = document.getElementById('confirmDeleteModal');
-            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
+      const logoutModal = document.getElementById('confirmLogoutModal');
+      const deleteModal = document.getElementById('confirmDeleteModal');
+      const deleteMsgEl = document.getElementById('confirmDeleteMessage');
 
-            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
-            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+      const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+      const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
 
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+      const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-            function openModal(modal) {
-                if (!modal) return;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.classList.add('overflow-hidden');
-            }
+      function openModal(modal) {
+          if (!modal) return;
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          document.body.classList.add('overflow-hidden');
+      }
 
-            function closeModal(modal) {
-                if (!modal) return;
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.classList.remove('overflow-hidden');
-            }
+      function closeModal(modal) {
+          if (!modal) return;
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          document.body.classList.remove('overflow-hidden');
+      }
 
-            // ====== LOGOUT HANDLER ======
-            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    pendingLogoutHref = this.getAttribute('href');
-                    openModal(logoutModal);
-                });
-            });
+      // ====== LOGOUT HANDLER ======
+      document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
+          link.addEventListener('click', function (e) {
+              e.preventDefault();
+              pendingLogoutHref = this.getAttribute('href');
+              openModal(logoutModal);
+          });
+      });
 
-            confirmLogoutBtn?.addEventListener('click', function () {
-                if (pendingLogoutHref) {
-                    window.location.href = pendingLogoutHref;
-                }
-            });
+      confirmLogoutBtn?.addEventListener('click', function () {
+          if (pendingLogoutHref) {
+              window.location.href = pendingLogoutHref;
+          }
+      });
 
-            cancelLogoutBtn?.addEventListener('click', function () {
-                pendingLogoutHref = null;
-                closeModal(logoutModal);
-            });
+      cancelLogoutBtn?.addEventListener('click', function () {
+          pendingLogoutHref = null;
+          closeModal(logoutModal);
+      });
 
-            // Klik di luar card = tutup modal logout
-            logoutModal?.addEventListener('click', function (e) {
-                if (e.target === logoutModal) {
-                    pendingLogoutHref = null;
-                    closeModal(logoutModal);
-                }
-            });
+      // Klik di luar card = tutup modal logout
+      logoutModal?.addEventListener('click', function (e) {
+          if (e.target === logoutModal) {
+              pendingLogoutHref = null;
+              closeModal(logoutModal);
+          }
+      });
 
-            // ====== DELETE HANDLER (project / progress) ======
-            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    pendingDeleteForm = this;
+      // ====== DELETE HANDLER (project / progress) ======
+      document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
+          form.addEventListener('submit', function (e) {
+              e.preventDefault();
+              pendingDeleteForm = this;
 
-                    const msg = this.getAttribute('data-message');
-                    if (msg && deleteMsgEl) {
-                        deleteMsgEl.textContent = msg;
-                    }
+              const msg = this.getAttribute('data-message');
+              if (msg && deleteMsgEl) {
+                  deleteMsgEl.textContent = msg;
+              }
 
-                    openModal(deleteModal);
-                });
-            });
+              openModal(deleteModal);
+          });
+      });
 
-            confirmDeleteBtn?.addEventListener('click', function () {
-                if (pendingDeleteForm) {
-                    const formToSubmit = pendingDeleteForm;
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                    formToSubmit.submit();
-                }
-            });
+      confirmDeleteBtn?.addEventListener('click', function () {
+          if (pendingDeleteForm) {
+              const formToSubmit = pendingDeleteForm;
+              pendingDeleteForm = null;
+              closeModal(deleteModal);
+              formToSubmit.submit();
+          }
+      });
 
-            cancelDeleteBtn?.addEventListener('click', function () {
-                pendingDeleteForm = null;
-                closeModal(deleteModal);
-            });
+      cancelDeleteBtn?.addEventListener('click', function () {
+          pendingDeleteForm = null;
+          closeModal(deleteModal);
+      });
 
-            // Klik di luar card = tutup modal delete
-            deleteModal?.addEventListener('click', function (e) {
-                if (e.target === deleteModal) {
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                }
-            });
+      // Klik di luar card = tutup modal delete
+      deleteModal?.addEventListener('click', function (e) {
+          if (e.target === deleteModal) {
+              pendingDeleteForm = null;
+              closeModal(deleteModal);
+          }
+      });
 
-            // ESC key untuk nutup modal (kalau ada yang kebuka)
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
-                        pendingLogoutHref = null;
-                        closeModal(logoutModal);
-                    }
-                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
-                        pendingDeleteForm = null;
-                        closeModal(deleteModal);
-                    }
-                }
-            });
-        })();
-    </script>
-  <script>
-        (function () {
-            let pendingLogoutHref = null;
-            let pendingDeleteForm = null;
-
-            const logoutModal = document.getElementById('confirmLogoutModal');
-            const deleteModal = document.getElementById('confirmDeleteModal');
-            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
-
-            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
-            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
-
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
-
-            function openModal(modal) {
-                if (!modal) return;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.classList.add('overflow-hidden');
-            }
-
-            function closeModal(modal) {
-                if (!modal) return;
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.classList.remove('overflow-hidden');
-            }
-
-            // ====== LOGOUT HANDLER ======
-            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    pendingLogoutHref = this.getAttribute('href');
-                    openModal(logoutModal);
-                });
-            });
-
-            confirmLogoutBtn?.addEventListener('click', function () {
-                if (pendingLogoutHref) {
-                    window.location.href = pendingLogoutHref;
-                }
-            });
-
-            cancelLogoutBtn?.addEventListener('click', function () {
-                pendingLogoutHref = null;
-                closeModal(logoutModal);
-            });
-
-            // Klik di luar card = tutup modal logout
-            logoutModal?.addEventListener('click', function (e) {
-                if (e.target === logoutModal) {
-                    pendingLogoutHref = null;
-                    closeModal(logoutModal);
-                }
-            });
-
-            // ====== DELETE HANDLER (project / progress) ======
-            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    pendingDeleteForm = this;
-
-                    const msg = this.getAttribute('data-message');
-                    if (msg && deleteMsgEl) {
-                        deleteMsgEl.textContent = msg;
-                    }
-
-                    openModal(deleteModal);
-                });
-            });
-
-            confirmDeleteBtn?.addEventListener('click', function () {
-                if (pendingDeleteForm) {
-                    const formToSubmit = pendingDeleteForm;
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                    formToSubmit.submit();
-                }
-            });
-
-            cancelDeleteBtn?.addEventListener('click', function () {
-                pendingDeleteForm = null;
-                closeModal(deleteModal);
-            });
-
-            // Klik di luar card = tutup modal delete
-            deleteModal?.addEventListener('click', function (e) {
-                if (e.target === deleteModal) {
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                }
-            });
-
-            // ESC key untuk nutup modal (kalau ada yang kebuka)
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
-                        pendingLogoutHref = null;
-                        closeModal(logoutModal);
-                    }
-                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
-                        pendingDeleteForm = null;
-                        closeModal(deleteModal);
-                    }
-                }
-            });
-        })();
-    </script>
+      // ESC key untuk nutup modal (kalau ada yang kebuka)
+      document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+              if (logoutModal && !logoutModal.classList.contains('hidden')) {
+                  pendingLogoutHref = null;
+                  closeModal(logoutModal);
+              }
+              if (deleteModal && !deleteModal.classList.contains('hidden')) {
+                  pendingDeleteForm = null;
+                  closeModal(deleteModal);
+              }
+          }
+      });
+  })();
+</script>
 </body>
 </html>
