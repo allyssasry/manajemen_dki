@@ -403,11 +403,11 @@
                       </div>
 
                       {{-- (opsional) tombol "lihat project" kalau ada route & id --}}
-                      @if(function_exists('route') && Route::has('semua.progresses') && $pId)
+                      @if(function_exists('route') && Route::has('kd.progresses') && $pId)
                         <div class="shrink-0 text-right">
                           <div class="text-xs text-gray-600">{{ $timeText }}</div>
                           {{-- kalau ada halaman detail project khusus KD, ganti route ini --}}
-                          <a href="{{ route('semua.progresses') }}#project-{{ $pId }}"
+                          <a href="{{ route('kd.progresses') }}#project-{{ $pId }}"
                              class="mt-2 inline-flex text-xs underline text-[#7A1C1C]">
                             Lihat Project
                           </a>

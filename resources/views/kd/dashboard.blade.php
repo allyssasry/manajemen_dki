@@ -14,7 +14,7 @@
     .scroll-thin::-webkit-scrollbar-track{background:transparent}
     /* Sticky header table untuk pengalaman scroll yang enak */
     .table-sticky thead th { position: sticky; top: 0; z-index: 10; }
-     .no-transition,
+    .no-transition,
     .no-transition * {
       transition: none !important;
     }
@@ -46,6 +46,7 @@
     $extraKey   = $me?->avatar_cache_key ?? ($me?->updated_at?->timestamp ?? time());
     $avatarUrl  = $rawUrl ? ($rawUrl.(str_contains($rawUrl,'?') ? '&' : '?').'ck='.$extraKey) : $fallbackSvg;
   @endphp
+
 {{-- ===== MINI SIDEBAR (rail ikon) – Kepala Divisi (KD) ===== --}}
 <aside id="miniSidebar"
   class="hidden md:flex fixed inset-y-0 left-0 z-40 w-16 bg-white border-r shadow-xl flex-col items-center justify-between py-4">
@@ -118,14 +119,14 @@
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6 flex-none"
            viewBox="0 0 24 24"
            fill="{{ request()->routeIs('account.setting*') ? '#7A1C1C' : 'currentColor' }}">
-        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 1 1 0 7 3.5 3.5 0 0 1 0-7z"/>
+        <path d="M11.983 1.25c-.455 0-.83.325-.91.774l-.303 1.71a8.518 8.518 0 0 0-1.874.77l-1.537-1.1a.916.916 0 0 0-1.14.08L4.02 4.684a.916.916 0 0 0-.08 1.14l1.1 1.537a8.523 8.523 0 0 0-.77 1.874l-1.71.303a.916.916 0 0 0-.774.91v1.92c0 .455.325.83.774.91l1.71.303a8.518 8.518 0 0 0 .77 1.874l-1.1 1.537a.916.916 0 0 0 .08 1.14l1.199 1.199a.916.916 0 0 0 1.14.08l1.537-1.1c.6.35 1.22.6 1.87.77l.303 1.71c.08.449.455.774.91.774h1.92c.455 0 .83-.325.91-.774l.303-1.71a8.518 8.518 0 0 0 1.874-.77l1.537 1.1a.916.916 0 0 0 1.14-.08l1.199-1.199a.916.916 0 0 0 .08-1.14l-1.1-1.537a8.523 8.523 0 0 0 .77-1.874l1.71-.303a.916.916 0 0 0 .774-.91v-1.92a.916.916 0 0 0-.774-.91l-1.71-.303a8.518 8.518 0 0 0-.77-1.874l1.1-1.537a.916.916 0 0 0-.08-1.14L18.8 3.4a.916.916 0 0 0-1.14-.08l-1.54 1.1a8.523 8.523 0 0 0-1.874-.77l-.3-1.71a.916.916 0 0 0-.91-.77h-1.92zM12 8.5a3.5 3.5 0 110 7 3.5 3.5 0 010-7z"/>
       </svg>
     </a>
 
     {{-- LOGOUT --}}
     <a href="/logout"
-   data-confirm-logout="true"
-   class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
+       data-confirm-logout="true"
+       class="p-2 rounded-lg hover:bg-[#FFF2F2]" title="Log Out" aria-label="Log Out">
       <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6"
            viewBox="0 0 24 24" fill="black">
         <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/>
@@ -134,6 +135,7 @@
     </a>
   </div>
 </aside>
+
 {{-- ===== BACKDROP (mobile) ===== --}}
 <div id="sidebarBackdrop" class="hidden fixed inset-0 z-40 bg-black/30 md:hidden"></div>
 
@@ -164,7 +166,7 @@
                   {{ request()->routeIs('kd.dashboard') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
                  fill="{{ request()->routeIs('kd.dashboard') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
             <span>Dashboard</span>
         </a>
@@ -188,7 +190,7 @@
                   {{ request()->routeIs('kd.notifications*') ? 'bg-[#FFF2F2] text-[#7A1C1C] font-semibold' : 'hover:bg-[#FFF2F2] text-gray-800' }}">
             <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none"
                  fill="{{ request()->routeIs('kd.notifications*') ? '#7A1C1C' : 'black' }}" viewBox="0 0 24 24">
-          <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
+              <path d="M12 24a2.5 2.5 0 0 0 2.45-2h-4.9A2.5 2.5 0 0 0 12 24zm6.36-6V11c0-3.07-1.64-5.64-4.5-6.32V4a1.86 1.86 0 1 0-3.72 0v.68C7.28 5.36 5.64 7.92 5.64 11v7L4 19v1h16v-1l-1.64-1z"/>
             </svg>
             <span>Notifikasi</span>
         </a>
@@ -217,16 +219,16 @@
             <span>Pengaturan Akun</span>
         </a>
 
-  <a href="/logout"
-       data-confirm-logout="true"
-       class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
-       title="Log Out" aria-label="Log Out">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
-        <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
-        <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
-      </svg>
-      <span>Log Out</span>
-    </a>
+        <a href="/logout"
+           data-confirm-logout="true"
+           class="flex items-center gap-3 px-3 py-2 rounded-xl transition hover:bg-[#FFF2F2] text-gray-900"
+           title="Log Out" aria-label="Log Out">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 flex-none" fill="black" viewBox="0 0 24 24">
+            <path d="M3 3h10a1 1 0 0 1 1 1v5h-2V5H5v14h7v-4h2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" />
+            <path d="M14 12l5-5v3h4v4h-4v3l-5-5z" />
+          </svg>
+          <span>Log Out</span>
+        </a>
     </div>
 </aside>
 
@@ -300,7 +302,11 @@
       $ws = $periodStart->format('m/Y');
       $we = $periodEnd->format('m/Y');
 
-      // ====== SCOPE ======
+      // Range harian utk filter completed_at
+      $rangeStart = $periodStart->copy()->startOfDay();
+      $rangeEnd   = $periodEnd->copy()->endOfDay();
+
+      // ====== SCOPE (disiapkan kalau nanti mau dipakai, default all) ======
       $scope   = request('scope', 'all');  // 'all' | 'mine'
       $userId  = (int) auth()->id();
 
@@ -310,9 +316,25 @@
       });
       $all  = $projects;
 
-      $scoped = $scope === 'mine' ? $mine : $all;
+      // ====== FILTER BERDASARKAN RENTANG BULAN (pakai completed_at) ======
+      $filterByPeriod = function(Collection $col) use ($rangeStart, $rangeEnd) {
+        return $col->filter(function($p) use ($rangeStart, $rangeEnd) {
+          if (empty($p->completed_at)) {
+            return false;
+          }
+          try {
+            $completed = Carbon::parse($p->completed_at)->startOfDay();
+          } catch (\Throwable $e) {
+            return false;
+          }
+          return $completed->between($rangeStart, $rangeEnd);
+        });
+      };
 
-      // ====== KPI (berbasis project selesai) ======
+      $allPeriod  = $filterByPeriod($all);
+      $minePeriod = $filterByPeriod($mine);
+
+      // ====== KPI (berbasis project selesai dalam periode) ======
       $calc = function(Collection $col) {
         $completed   = $col->whereNotNull('completed_at');
         $meet        = $completed->where('meets_requirement', true)->count();
@@ -322,9 +344,11 @@
         return [$meet, $notMeet, $completedCt, $acc];
       };
 
-      [$meetAll,  $notAll,  $completedAll,  $accAll]  = $calc($all);
-      [$meetMine, $notMine, $completedMine, $accMine] = $calc($mine);
+      // Semua data untuk periode terpilih
+      [$meetAll,  $notAll,  $completedAll,  $accAll]  = $calc($allPeriod);
+      [$meetMine, $notMine, $completedMine, $accMine] = $calc($minePeriod);
 
+      // Kalau suatu saat KD mau ada scope "mine", sudah siap
       [$meetCount, $notMeetCount, $completedCount, $acc] = $scope === 'mine'
         ? [$meetMine, $notMine, $completedMine, $accMine]
         : [$meetAll,  $notAll,  $completedAll,  $accAll];
@@ -332,7 +356,7 @@
       // cincin KPI
       $size = 120; $stroke = 12; $r = $size/2 - $stroke; $circ = 2 * M_PI * $r; $off = $circ * (1 - $acc/100);
 
-      // ====== STATUS PROJECT untuk tabel "Recent Project" ======
+      // ====== STATUS PROJECT untuk tabel "Recent Project" (pakai semua project yang dikirim controller) ======
       $projectStatus = [];
       $today = \Illuminate\Support\Carbon::now('Asia/Jakarta')->startOfDay();
 
@@ -413,7 +437,7 @@
           </div>
         </div>
 
-        {{-- 2) Project Selesai, Memenuhi --}}
+        {{-- 2) Project Selesai, Memenuhi (dalam periode terpilih) --}}
         <div class="rounded-2xl bg-[#8D2121] text-white p-5 grid min-h-[180px] md:col-span-3">
           <div class="flex items-center justify-between mb-3">
             <div class="font-semibold text-sm">Project Selesai, Memenuhi</div>
@@ -426,14 +450,13 @@
           <div class="text-[11px] text-white/90 mt-2 text-center">Semua: {{ $meetAll }}</div>
         </div>
 
-        {{-- 3) Project Selesai, Tidak Memenuhi --}}
+        {{-- 3) Project Selesai, Tidak Memenuhi (dalam periode terpilih) --}}
         <div class="rounded-2xl bg-[#8D2121] text-white p-5 grid min-h-[180px] md:col-span-3">
           <div class="flex items-center justify-between mb-3">
             <div class="font-semibold text-sm">Project Selesai, Tidak Memenuhi</div>
             <form method="GET" action="{{ route('kd.dashboard') }}" class="flex items-center gap-2">
               <input type="hidden" name="month_start" value="{{ $monthStartVal }}">
               <input type="hidden" name="month_end" value="{{ $monthEndVal }}">
-             
             </form>
           </div>
           <div class="text-5xl font-bold place-self-center">{{ $notMeetCount }}</div>
@@ -456,14 +479,14 @@
 
       {{-- Card + table scroll, tinggi dibatasi agar ~10 baris terlihat --}}
       <div class="rounded-b-xl bg-[#7A1C1C] text-white overflow-hidden">
-        <div class="max-h:[420px] overflow-y-auto table-sticky">
+        <div class="max-h-[420px] overflow-y-auto table-sticky">
           <table class="min-w-full text-sm">
             <thead class="bg-[#7A1C1C]">
               <tr>
                 <th class="px-6 py-3 text-left font-semibold border-b border-white/20">Nama Project</th>
                 <th class="px-6 py-3 text-left font-semibold border-b border-white/20">Penanggung Jawab (Developer)</th>
-                <th class="px-6 py-3 text-left font-semibold border-b border:white/20">Penanggung Jawab (DIG)</th>
-                <th class="px-6 py-3 text-left font-semibold border-b border:white/20">Status</th>
+                <th class="px-6 py-3 text-left font-semibold border-b border-white/20">Penanggung Jawab (DIG)</th>
+                <th class="px-6 py-3 text-left font-semibold border-b border-white/20">Status</th>
                 {{-- KOLOM BARU: Lampiran --}}
                 <th class="px-6 py-3 text-left font-semibold border-b border-white/20">Lampiran</th>
               </tr>
@@ -528,7 +551,7 @@
                 </tr>
               @empty
                 <tr>
-                  <td colspan="5" class="px-6 py-4 text-center text:white/90">Belum ada project.</td>
+                  <td colspan="5" class="px-6 py-4 text-center text-white/90">Belum ada project.</td>
                 </tr>
               @endforelse
             </tbody>
@@ -539,6 +562,7 @@
 
     <div class="pb-10"></div>
   </div>
+
     {{-- ===== MODAL KONFIRMASI LOGOUT ===== --}}
     <div id="confirmLogoutModal"
          class="fixed inset-0 z-[60] hidden items-center justify-center bg-black/40">
@@ -572,6 +596,7 @@
             </div>
         </div>
     </div>
+
 <script>
   const sidebar      = document.getElementById('sidebar');
   const sidebarClose = document.getElementById('sidebarCloseBtn');
@@ -655,114 +680,115 @@
   window.addEventListener('resize', syncOnResize);
   firstPaint();
 </script>
-  <script>
-        (function () {
-            let pendingLogoutHref = null;
-            let pendingDeleteForm = null;
 
-            const logoutModal = document.getElementById('confirmLogoutModal');
-            const deleteModal = document.getElementById('confirmDeleteModal');
-            const deleteMsgEl = document.getElementById('confirmDeleteMessage');
+<script>
+  (function () {
+      let pendingLogoutHref = null;
+      let pendingDeleteForm = null;
 
-            const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
-            const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
+      const logoutModal = document.getElementById('confirmLogoutModal');
+      const deleteModal = document.getElementById('confirmDeleteModal');
+      const deleteMsgEl = document.getElementById('confirmDeleteMessage');
 
-            const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
-            const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
+      const confirmLogoutBtn = document.getElementById('confirmLogoutBtn');
+      const cancelLogoutBtn = document.getElementById('cancelLogoutBtn');
 
-            function openModal(modal) {
-                if (!modal) return;
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                document.body.classList.add('overflow-hidden');
-            }
+      const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
+      const cancelDeleteBtn = document.getElementById('cancelDeleteBtn');
 
-            function closeModal(modal) {
-                if (!modal) return;
-                modal.classList.add('hidden');
-                modal.classList.remove('flex');
-                document.body.classList.remove('overflow-hidden');
-            }
+      function openModal(modal) {
+          if (!modal) return;
+          modal.classList.remove('hidden');
+          modal.classList.add('flex');
+          document.body.classList.add('overflow-hidden');
+      }
 
-            // ====== LOGOUT HANDLER ======
-            document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
-                link.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    pendingLogoutHref = this.getAttribute('href');
-                    openModal(logoutModal);
-                });
-            });
+      function closeModal(modal) {
+          if (!modal) return;
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+          document.body.classList.remove('overflow-hidden');
+      }
 
-            confirmLogoutBtn?.addEventListener('click', function () {
-                if (pendingLogoutHref) {
-                    window.location.href = pendingLogoutHref;
-                }
-            });
+      // ====== LOGOUT HANDLER ======
+      document.querySelectorAll('[data-confirm-logout="true"]').forEach(link => {
+          link.addEventListener('click', function (e) {
+              e.preventDefault();
+              pendingLogoutHref = this.getAttribute('href');
+              openModal(logoutModal);
+          });
+      });
 
-            cancelLogoutBtn?.addEventListener('click', function () {
-                pendingLogoutHref = null;
-                closeModal(logoutModal);
-            });
+      confirmLogoutBtn?.addEventListener('click', function () {
+          if (pendingLogoutHref) {
+              window.location.href = pendingLogoutHref;
+          }
+      });
 
-            // Klik di luar card = tutup modal logout
-            logoutModal?.addEventListener('click', function (e) {
-                if (e.target === logoutModal) {
-                    pendingLogoutHref = null;
-                    closeModal(logoutModal);
-                }
-            });
+      cancelLogoutBtn?.addEventListener('click', function () {
+          pendingLogoutHref = null;
+          closeModal(logoutModal);
+      });
 
-            // ====== DELETE HANDLER (project / progress) ======
-            document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
-                form.addEventListener('submit', function (e) {
-                    e.preventDefault();
-                    pendingDeleteForm = this;
+      // Klik di luar card = tutup modal logout
+      logoutModal?.addEventListener('click', function (e) {
+          if (e.target === logoutModal) {
+              pendingLogoutHref = null;
+              closeModal(logoutModal);
+          }
+      });
 
-                    const msg = this.getAttribute('data-message');
-                    if (msg && deleteMsgEl) {
-                        deleteMsgEl.textContent = msg;
-                    }
+      // ====== DELETE HANDLER (project / progress) ======
+      document.querySelectorAll('form[data-confirm-delete="true"]').forEach(form => {
+          form.addEventListener('submit', function (e) {
+              e.preventDefault();
+              pendingDeleteForm = this;
 
-                    openModal(deleteModal);
-                });
-            });
+              const msg = this.getAttribute('data-message');
+              if (msg && deleteMsgEl) {
+                  deleteMsgEl.textContent = msg;
+              }
 
-            confirmDeleteBtn?.addEventListener('click', function () {
-                if (pendingDeleteForm) {
-                    const formToSubmit = pendingDeleteForm;
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                    formToSubmit.submit();
-                }
-            });
+              openModal(deleteModal);
+          });
+      });
 
-            cancelDeleteBtn?.addEventListener('click', function () {
-                pendingDeleteForm = null;
-                closeModal(deleteModal);
-            });
+      confirmDeleteBtn?.addEventListener('click', function () {
+          if (pendingDeleteForm) {
+              const formToSubmit = pendingDeleteForm;
+              pendingDeleteForm = null;
+              closeModal(deleteModal);
+              formToSubmit.submit();
+          }
+      });
 
-            // Klik di luar card = tutup modal delete
-            deleteModal?.addEventListener('click', function (e) {
-                if (e.target === deleteModal) {
-                    pendingDeleteForm = null;
-                    closeModal(deleteModal);
-                }
-            });
+      cancelDeleteBtn?.addEventListener('click', function () {
+          pendingDeleteForm = null;
+          closeModal(deleteModal);
+      });
 
-            // ESC key untuk nutup modal (kalau ada yang kebuka)
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape') {
-                    if (logoutModal && !logoutModal.classList.contains('hidden')) {
-                        pendingLogoutHref = null;
-                        closeModal(logoutModal);
-                    }
-                    if (deleteModal && !deleteModal.classList.contains('hidden')) {
-                        pendingDeleteForm = null;
-                        closeModal(deleteModal);
-                    }
-                }
-            });
-        })();
-    </script>
+      // Klik di luar card = tutup modal delete
+      deleteModal?.addEventListener('click', function (e) {
+          if (e.target === deleteModal) {
+              pendingDeleteForm = null;
+              closeModal(deleteModal);
+          }
+      });
+
+      // ESC key untuk nutup modal (kalau ada yang kebuka)
+      document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') {
+              if (logoutModal && !logoutModal.classList.contains('hidden')) {
+                  pendingLogoutHref = null;
+                  closeModal(logoutModal);
+              }
+              if (deleteModal && !deleteModal.classList.contains('hidden')) {
+                  pendingDeleteForm = null;
+                  closeModal(deleteModal);
+              }
+          }
+      });
+  })();
+</script>
 </body>
 </html>

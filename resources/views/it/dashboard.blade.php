@@ -643,36 +643,55 @@
     {{-- ===== KPI SECTION (maroon) ===== --}}
     <section class="{{ $container }} mt-5">
       <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
-        {{-- Project Akumulasi --}}
-        <div class="rounded-2xl card-maroon border p-4 min-h-[140px] md:col-span-6">
-          <div class="flex items-center justify-between mb-3">
-            <div class="font-semibold text-sm">Project Akumulasi</div>
-            <form method="GET" action="{{ route('it.dashboard') }}" class="flex items-center gap-2">
-              <input type="hidden" name="scope" value="{{ $scope }}">
-              <input type="hidden" name="scope_meet" value="{{ $scopeMeet }}">
-              <input type="hidden" name="scope_not" value="{{ $scopeNot }}">
-              <input type="month" name="month_start" value="{{ $monthStartVal }}" class="h-8 rounded-lg border border-red-300 bg-white/10 px-2 text-xs">
-              <span class="text-xs text-white/80">s/d</span>
-              <input type="month" name="month_end" value="{{ $monthEndVal }}" class="h-8 rounded-lg border border-red-300 bg-white/10 px-2 text-xs">
-              <button class="h-8 px-3 rounded-lg bg-white text-[#7A1C1C] text-xs font-semibold">Terapkan</button>
-            </form>
-          </div>
-          <div class="flex items-center gap-4">
-            <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 {{ $size }} {{ $size }}">
-              <circle cx="{{ $size/2 }}" cy="{{ $size/2 }}" r="{{ $r }}" stroke="#A05353" stroke-width="{{ $stroke }}" fill="none" opacity=".35"/>
-              <circle cx="{{ $size/2 }}" cy="{{ $size/2 }}" r="{{ $r }}" stroke="#fff" stroke-width="{{ $stroke }}" stroke-linecap="round"
-                      stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $off }}"
-                      transform="rotate(-90 {{ $size/2 }} {{ $size/2 }})" fill="none"/>
-              <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" font-size="18" font-weight="700" fill="#fff">{{ $acc }}%</text>
-            </svg>
-            <div class="text-xs text-white min-w-0 break-words">
-              <div>Periode: <span class="font-semibold">{{ $ws }}–{{ $we }}</span></div>
-              <div>Scope aktif: <span class="font-semibold">{{ $scope === 'mine' ? 'Tugas saya' : 'Semua' }}</span></div>
-              <div class="mt-1">Total project (scope global): <span class="font-semibold">{{ $totalScopeProjects }}</span></div>
-              <div class="mt-1">Selesai (periode): <span class="font-semibold">Saya {{ $completedMine }} • Semua {{ $completedAll }}</span></div>
-            </div>
-          </div>
-        </div>
+      {{-- Project Akumulasi --}}
+<div class="rounded-2xl card-maroon border p-4 min-h-[140px] md:col-span-6">
+  <div class="flex items-center justify-between mb-3">
+    <div class="font-semibold text-sm">Project Akumulasi</div>
+    <form method="GET" action="{{ route('it.dashboard') }}" class="flex items-center gap-2">
+      <input type="hidden" name="scope" value="{{ $scope }}">
+      <input type="hidden" name="scope_meet" value="{{ $scopeMeet }}">
+      <input type="hidden" name="scope_not" value="{{ $scopeNot }}">
+
+      {{-- input bulan awal (putih) --}}
+      <input type="month" name="month_start" value="{{ $monthStartVal }}"
+             class="h-8 rounded-lg border bg-white text-[#7A1C1C] px-2 text-xs">
+
+      <span class="text-xs text-white/80">s/d</span>
+
+      {{-- input bulan akhir (putih) --}}
+      <input type="month" name="month_end" value="{{ $monthEndVal }}"
+             class="h-8 rounded-lg border bg-white text-[#7A1C1C] px-2 text-xs">
+
+      <button class="h-8 px-3 rounded-lg bg-white text-[#7A1C1C] text-xs font-semibold">
+        Terapkan
+      </button>
+    </form>
+  </div>
+
+  <div class="flex items-center gap-4">
+    <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 {{ $size }} {{ $size }}">
+      <circle cx="{{ $size/2 }}" cy="{{ $size/2 }}" r="{{ $r }}"
+              stroke="#A05353" stroke-width="{{ $stroke }}" fill="none" opacity=".35"/>
+      <circle cx="{{ $size/2 }}" cy="{{ $size/2 }}" r="{{ $r }}"
+              stroke="#fff" stroke-width="{{ $stroke }}" stroke-linecap="round"
+              stroke-dasharray="{{ $circ }}" stroke-dashoffset="{{ $off }}"
+              transform="rotate(-90 {{ $size/2 }} {{ $size/2 }})" fill="none"/>
+      <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle"
+            font-size="18" font-weight="700" fill="#fff">
+        {{ $acc }}%
+      </text>
+    </svg>
+
+    <div class="text-xs text-white min-w-0 break-words">
+      <div>Periode: <span class="font-semibold">{{ $ws }}–{{ $we }}</span></div>
+      <div>Scope aktif: <span class="font-semibold">{{ $scope === 'mine' ? 'Tugas saya' : 'Semua' }}</span></div>
+      <div class="mt-1">Total project (scope global): <span class="font-semibold">{{ $totalScopeProjects }}</span></div>
+      <div class="mt-1">
+        Selesai (periode): <span class="font-semibold">Saya {{ $completedMine }} • Semua {{ $completedAll }}</span>
+      </div>
+    </div>
+  </div>
+</div>
 
         {{-- Memenuhi --}}
         <div class="rounded-2xl card-maroon border p-4 grid min-h-[140px] md:col-span-3">
@@ -683,7 +702,8 @@
               <input type="hidden" name="month_end"  value="{{ $monthEndVal }}">
               <input type="hidden" name="scope"      value="{{ $scope }}">
               <input type="hidden" name="scope_not"  value="{{ $scopeNot }}">
-              <select name="scope_meet" class="h-8 rounded-lg border bg-white/10 px-2 text-xs" onchange="this.form.submit()">
+              <select name="scope_meet" class="h-8 rounded-lg border border-white/70 bg-white px-2 text-xs text-gray-900"
+ onchange="this.form.submit()">
                 <option value="all"  {{ $scopeMeet === 'all'  ? 'selected' : '' }}>Semua</option>
                 <option value="mine" {{ $scopeMeet === 'mine' ? 'selected' : '' }}>Tugas saya</option>
               </select>
@@ -702,7 +722,8 @@
               <input type="hidden" name="month_end"  value="{{ $monthEndVal }}">
               <input type="hidden" name="scope"      value="{{ $scope }}">
               <input type="hidden" name="scope_meet" value="{{ $scopeMeet }}">
-              <select name="scope_not" class="h-8 rounded-lg border bg-white/10 px-2 text-xs" onchange="this.form.submit()">
+              <select name="scope_not" class="h-8 rounded-lg border border-white/70 bg-white px-2 text-xs text-gray-900"
+ onchange="this.form.submit()">
                 <option value="all"  {{ $scopeNot === 'all'  ? 'selected' : '' }}>Semua</option>
                 <option value="mine" {{ $scopeNot === 'mine' ? 'selected' : '' }}>Tugas saya</option>
               </select>

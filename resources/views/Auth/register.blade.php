@@ -154,7 +154,7 @@
         <!-- Tombol -->
         <button
           type="submit"
-          class="w-full rounded-2xl border-2 border-[#F6E4E4]/70 bg-[#F6E4E4]/90 hover:bg-[#F6E4E4] text-[#8D2121] font-extrabold py-3 transition duration-200"
+          class="w-full rounded-2xl border-2 border-[#F6E4E4]/70 bg-white hover:bg-[#F6E4E4] text-[#8D2121] font-extrabold py-3 transition duration-200"
         >
           Sign Up
         </button>
