@@ -14,6 +14,8 @@ use App\Notifications\ProgressConfirmed;               // existing (notifikasi k
 use App\Notifications\SupervisorStatusNotification;    // existing (notifikasi ke Supervisor)
 use App\Notifications\ProgressChangedNotification;     // NEW: notifikasi ke IT
 use App\Support\NotifyTargets;                         // NEW: helper target IT
+use App\Support\ProgressTargetAllocator;
+use Illuminate\Support\Facades\DB;
 
 class ProgressController extends Controller
 {
@@ -67,11 +69,22 @@ class ProgressController extends Controller
             'name'            => ['required','string','max:255'],
             'start_date'      => ['required','date'],
             'end_date'        => ['required','date','after_or_equal:start_date'],
-            'desired_percent' => ['required','integer','min:0','max:100'],
+            'desired_percent' => ['nullable','integer','min:0','max:100'],
         ]);
 
-        $data['created_by'] = Auth::id();
-        $progress = $project->progresses()->create($data);
+        $progress = DB::transaction(function () use ($project, $data) {
+            $progress = $project->progresses()->create([
+                'name'            => $data['name'],
+                'start_date'      => $data['start_date'],
+                'end_date'        => $data['end_date'],
+                'desired_percent' => 0,
+                'created_by'      => Auth::id(),
+            ]);
+
+            ProgressTargetAllocator::rebalance($project);
+
+            return $progress->fresh();
+        });
 
         // === NOTIFIKASI ke IT (developer) bahwa DIG membuat progress baru ===
         $actor = $request->user();
@@ -118,10 +131,18 @@ class ProgressController extends Controller
             'name'            => ['required','string','max:255'],
             'start_date'      => ['required','date'],
             'end_date'        => ['required','date','after_or_equal:start_date'],
-            'desired_percent' => ['required','integer','min:0','max:100'],
+            'desired_percent' => ['nullable','integer','min:0','max:100'],
         ]);
 
-        $progress->update($data);
+        DB::transaction(function () use ($progress, $data) {
+            $progress->update([
+                'name'       => $data['name'],
+                'start_date' => $data['start_date'],
+                'end_date'   => $data['end_date'],
+            ]);
+
+            ProgressTargetAllocator::rebalance($progress->project);
+        });
 
         // ✅ tetap di halaman progress
         return back()->with('success', 'Progress berhasil diperbarui.');
@@ -139,15 +160,23 @@ class ProgressController extends Controller
             abort(403, 'Tidak boleh menghapus progress ini.');
         }
 
-        // Hapus dulu relasi terkait (kalau tidak pakai cascade)
-        if (method_exists($progress, 'updates')) {
-            $progress->updates()->delete();
-        }
-        if (method_exists($progress, 'notes')) {
-            $progress->notes()->delete();
-        }
+        DB::transaction(function () use ($progress) {
+            $project = $progress->project;
 
-        $progress->delete();
+            // Hapus dulu relasi terkait (kalau tidak pakai cascade)
+            if (method_exists($progress, 'updates')) {
+                $progress->updates()->delete();
+            }
+            if (method_exists($progress, 'notes')) {
+                $progress->notes()->delete();
+            }
+
+            $progress->delete();
+
+            if ($project) {
+                ProgressTargetAllocator::rebalance($project);
+            }
+        });
 
         // ✅ balik ke halaman yang memanggil (progress list / detail)
         return back()->with('success', 'Progress berhasil dihapus.');

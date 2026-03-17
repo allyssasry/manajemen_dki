@@ -13,11 +13,29 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // Gunakan User::create untuk kontrol langsung apa yang diinsert
+        User::create([
+            'name' => 'Allyssa Nur Ayu Soraya',
+            'username' => 'allyssanuras',
+            'email' => 'allyssanuras@gmail.com',
+            'role' => 'digital_banking',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+        ]);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::create([
+            'name' => 'IT Administrator',
+            'username' => 'admin_it',
+            'email' => 'admin@bankdki.com',
+            'role' => 'it',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
+        ]);
+
+        User::create([
+            'name' => 'Kepala Divisi',
+            'username' => 'kepala_divisi',
+            'email' => 'kepala@bankdki.com',
+            'role' => 'kepala_divisi',
+            'password' => \Illuminate\Support\Facades\Hash::make('password123'),
         ]);
     }
 }

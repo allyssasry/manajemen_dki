@@ -26,17 +26,21 @@ class DashboardController extends Controller
 
         // === Daftar project untuk LIST DI DASHBOARD IT ===
         // PENTING: tambahkan 'attachments'
-        $projects = Project::with([
+        $projects = Project::query()
+            ->visibleTo($user)
+            ->with([
                 'progresses.updates',
                 'digitalBanking',
                 'developer',
-                'attachments',      // ⬅⬅⬅ ini yang bikin lampiran kebaca di Blade
+                'attachments',
             ])
             ->latest()
             ->get();
 
         // === KPI Ring Mingguan (akumulasi) ===
-        $projectsInWeek = Project::with(['progresses.updates'])
+        $projectsInWeek = Project::query()
+            ->visibleTo($user)
+            ->with(['progresses.updates'])
             ->whereHas('progresses', function ($q) use ($start, $end) {
                 $q->whereBetween('end_date', [
                     $start->toDateString(),
@@ -72,11 +76,15 @@ class DashboardController extends Controller
             : 0;
 
         // === KPI Arsip (harus sama dengan halaman Arsip) ===
-        $meetCount    = Project::archivedStrict()
+        $meetCount    = Project::query()
+            ->visibleTo($user)
+            ->archivedStrict()
             ->where('meets_requirement', 1)
             ->count();
 
-        $notMeetCount = Project::archivedStrict()
+        $notMeetCount = Project::query()
+            ->visibleTo($user)
+            ->archivedStrict()
             ->where('meets_requirement', 0)
             ->count();
 

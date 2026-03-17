@@ -245,9 +245,9 @@
                         class="rounded-xl bg-[#E2B9B9]/40 border border-[#C89898] px-3 py-2 outline-none">
                     <input type="date" name="end_date" required
                         class="rounded-xl bg-[#E2B9B9]/40 border border-[#C89898] px-3 py-2 outline-none">
-                    <input type="number" name="desired_percent" required min="1" max="100"
-                        placeholder="Target %"
-                        class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none" />
+                    <div class="rounded-xl bg-[#F8E9E9] border border-[#C89898] px-3 py-2 text-xs text-[#7A1C1C]">
+                        Target dihitung otomatis.
+                    </div>
 
                     <button
                         class="rounded-xl border-2 border-[#7A1C1C] bg-[#E2B9B9] px-4 py-2 font-semibold hover:bg-[#D9AFAF]">

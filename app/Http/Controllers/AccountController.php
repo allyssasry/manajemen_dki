@@ -16,8 +16,20 @@ class AccountController extends Controller
         $this->middleware('auth');
     }
 
-    /** Tampilkan form pengaturan akun */
+    /** Halaman utama pengaturan akun (menu) */
+    public function index()
+    {
+        return view('account.setting');
+    }
+
+    /** Backward compatibility ke route lama */
     public function edit()
+    {
+        return $this->index();
+    }
+
+    /** Tampilkan form pengaturan profil */
+    public function editProfile()
     {
         $user = Auth::user()->fresh();
 
@@ -29,12 +41,18 @@ class AccountController extends Controller
             $lastGuess  = $parts ? implode(' ', $parts) : '';
         }
 
-        return view('account.setting', [
+        return view('account.setting-profile', [
             'user'        => $user,
             'first_guess' => $firstGuess,
             'last_guess'  => $lastGuess,
             'avatarUrl'   => $this->avatarUrl($user),
         ]);
+    }
+
+    /** Tampilkan form pengaturan password */
+    public function editPassword()
+    {
+        return view('account.setting-password');
     }
 
     /** Simpan perubahan */
@@ -93,6 +111,29 @@ class AccountController extends Controller
         Auth::setUser($user);
 
         return back()->with('success', 'Perubahan akun tersimpan.');
+    }
+
+    /** Ganti password */
+    public function changePassword(Request $request)
+    {
+        $user = Auth::user();
+
+        $validated = $request->validate([
+            'current_password'      => ['required', 'current_password'],
+            'password'              => ['required', 'min:8', 'confirmed', 'different:current_password'],
+            'password_confirmation' => ['required'],
+        ], [
+            'current_password.required'      => 'Kata sandi saat ini wajib diisi.',
+            'current_password.current_password' => 'Kata sandi saat ini tidak sesuai.',
+            'password.required'              => 'Kata sandi baru wajib diisi.',
+            'password.min'                   => 'Kata sandi minimal 8 karakter.',
+            'password.confirmed'             => 'Konfirmasi kata sandi tidak sesuai.',
+            'password.different'             => 'Kata sandi baru harus berbeda dengan kata sandi saat ini.',
+        ]);
+
+        $user->update(['password' => $validated['password']]);
+
+        return back()->with('success', 'Kata sandi berhasil diubah.');
     }
 
     /** Bangun URL avatar + cache buster agar foto baru langsung tampil */

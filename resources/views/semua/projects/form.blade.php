@@ -211,15 +211,9 @@
                                                 value="{{ old('progresses.0.end_date') }}"
                                                 class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none">
                                         </div>
-                                        <label class="block text-sm font-semibold mt-3 mb-1">Target (%)</label>
-                                        {{-- GANTI: dari select ke input number bebas --}}
-                                        <input type="number"
-                                            name="progresses[0][desired_percent]"
-                                            min="0" max="100" step="1"
-                                            required
-                                            value="{{ old('progresses.0.desired_percent', 75) }}"
-                                            placeholder="Misal 25"
-                                            class="w-full rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none cursor-pointer" />
+                                        <div class="mt-3 rounded-xl bg-[#F8E9E9] border border-[#C89898] px-3 py-2 text-xs text-[#7A1C1C]">
+                                            Perhitungan target otomatis.
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -251,14 +245,9 @@
                                             <input type="date" name="progresses[__INDEX__][end_date]" required
                                                 class="rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none">
                                         </div>
-                                        <label class="block text-sm font-semibold mt-3 mb-1">Target (%)</label>
-                                        {{-- GANTI: dari select ke input number --}}
-                                        <input type="number"
-                                            name="progresses[__INDEX__][desired_percent]"
-                                            min="0" max="100" step="1"
-                                            required
-                                            placeholder="Misal 25"
-                                            class="w-full rounded-xl bg-white border border-[#C89898] px-3 py-2 outline-none cursor-pointer" />
+                                        <div class="mt-3 rounded-xl bg-[#F8E9E9] border border-[#C89898] px-3 py-2 text-xs text-[#7A1C1C]">
+                                            Target otomatis dihitung: 100 ÷ 23 per progress.
+                                        </div>
                                     </div>
                                 </div>
                             </div>

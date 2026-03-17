@@ -49,10 +49,11 @@
             <input
               name="username"
               type="text"
-              placeholder="Masukkan Username"
+              placeholder="Username atau Email"
               required
               class="w-full bg-transparent outline-none text-[#F6E4E4] placeholder-[#F6E4E4]/60 focus:placeholder-[#F6E4E4]/40"
               autocomplete="username"
+              value="{{ old('username') }}"
             />
           </div>
         </div>
@@ -100,11 +101,14 @@
           </div>
         </div>
 
-        <!-- Link daftar -->
-        <p class="text-right text-sm text-[#F6E4E4]/90">
-          Jika belum memiliki akun,
-          <a href="{{ route('Auth.register') }}" class="font-semibold text-[#FBDCDC] hover:underline">Daftar Sekarang!</a>
-        </p>
+        <!-- Link daftar dan lupa password -->
+        <div class="flex items-center justify-between text-sm text-[#F6E4E4]/90">
+          <p>
+            Jika belum memiliki akun,
+            <a href="{{ route('Auth.register') }}" class="font-semibold text-[#FBDCDC] hover:underline">Daftar Sekarang!</a>
+          </p>
+          <a href="{{ route('password.request') }}" class="font-semibold text-[#FBDCDC] hover:underline">Lupa Password?</a>
+        </div>
 
         <!-- Tombol Login -->
         <button
@@ -117,16 +121,22 @@
 
       <!-- Error messages -->
       @if ($errors->any())
-        <div class="mt-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
+        <div class="mt-4 text-sm text-red-300 bg-red-500/20 border border-red-400/30 rounded-lg p-3">
           @foreach ($errors->all() as $e)
-            <div>{{ $e }}</div>
+            <div>• {{ $e }}</div>
           @endforeach
         </div>
       @endif
 
       @if (session('error'))
-        <div class="mt-4 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg p-3">
-          {{ session('error') }}
+        <div class="mt-4 text-sm text-red-300 bg-red-500/20 border border-red-400/30 rounded-lg p-3">
+          • {{ session('error') }}
+        </div>
+      @endif
+
+      @if (session('success'))
+        <div class="mt-4 text-sm text-green-300 bg-green-600/20 border border-green-400/30 rounded-lg p-3">
+          ✓ {{ session('success') }}
         </div>
       @endif
     </div>

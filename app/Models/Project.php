@@ -239,5 +239,32 @@ class Project extends Model
         return $this->hasMany(\App\Models\ProjectAttachment::class, 'project_id');
     }
 
+    /**
+     * Batasi project yang terlihat sesuai role penanggung jawab.
+     * - DIG: hanya project dengan digital_banking_id = user login
+     * - IT:  hanya project dengan developer_id = user login
+     * - Kepala divisi/supervisor: tidak dibatasi
+     */
+    public function scopeVisibleTo($query, ?User $user)
+    {
+        if (!$user) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        if (in_array($user->role, ['kepala_divisi', 'kd', 'supervisor'], true)) {
+            return $query;
+        }
+
+        if ($user->role === 'digital_banking') {
+            return $query->where('digital_banking_id', $user->id);
+        }
+
+        if ($user->role === 'it') {
+            return $query->where('developer_id', $user->id);
+        }
+
+        return $query->whereRaw('1 = 0');
+    }
+
 
 }

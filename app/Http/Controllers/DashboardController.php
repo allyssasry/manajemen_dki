@@ -10,8 +10,11 @@ class DashboardController extends Controller
 {
     public function digDashboard()
     {
-        // Project terlihat untuk Digital Banking (bisa semua atau filter by digital_banking_id = me)
-        $projects = Project::with(['creator','progresses.updates'])->orderByDesc('id')->get();
+        $projects = Project::query()
+            ->visibleTo(Auth::user())
+            ->with(['creator', 'progresses.updates'])
+            ->orderByDesc('id')
+            ->get();
 
         // dropdown penanggung jawab saat bikin project
         $digitalUsers = User::where('role','digital_banking')->orderBy('name')->get();
@@ -22,8 +25,11 @@ class DashboardController extends Controller
 
     public function itDashboard()
     {
-        // Anak IT melihat semua project dari Digital Banking + progres & update
-        $projects = Project::with(['digitalBanking','developer','progresses.updates'])->orderByDesc('id')->get();
+        $projects = Project::query()
+            ->visibleTo(Auth::user())
+            ->with(['digitalBanking', 'developer', 'progresses.updates'])
+            ->orderByDesc('id')
+            ->get();
 
         return view('it.dashboard', compact('projects'));
     }

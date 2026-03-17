@@ -15,6 +15,7 @@ use App\Notifications\DigCompletionDecision;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 // === LAMPIRAN (NEW) ===
 use App\Models\ProjectAttachment;
+use App\Support\ProgressTargetAllocator;
 
 class ProjectController extends Controller
 {
@@ -55,18 +56,20 @@ class ProjectController extends Controller
     /** Dashboard list (DIG / SEMUA) */
     public function index()
     {
-        $projects = Project::with([
-            'digitalBanking:id,name,username',
-            'developer:id,name,username',
-            'progresses' => function ($q) {
-                $q->with([
-                    'creator:id,name,role',
-                    'updates' => fn($uq) => $uq->latest(),
-                ]);
-            },
-            // === LAMPIRAN (NEW) ===
-            'attachments',
-        ])
+        $projects = Project::query()
+            ->visibleTo(Auth::user())
+            ->with([
+                'digitalBanking:id,name,username',
+                'developer:id,name,username',
+                'progresses' => function ($q) {
+                    $q->with([
+                        'creator:id,name,role',
+                        'updates' => fn($uq) => $uq->latest(),
+                    ]);
+                },
+                // === LAMPIRAN (NEW) ===
+                'attachments',
+            ])
             ->latest()
             ->get();
 
@@ -101,7 +104,7 @@ class ProjectController extends Controller
             'progresses.*.name'   => ['required', 'string', 'max:255'],
             'progresses.*.start_date' => ['required', 'date'],
             'progresses.*.end_date'   => ['required', 'date', 'after_or_equal:progresses.*.start_date'],
-            'progresses.*.desired_percent' => ['required', 'integer', 'min:0', 'max:100'],
+            'progresses.*.desired_percent' => ['nullable', 'integer', 'min:0', 'max:100'],
             // === LAMPIRAN (NEW) ===
             'attachments'   => ['sometimes', 'array'],
             'attachments.*' => ['file', 'mimes:pdf,jpg,jpeg,png,webp', 'max:5120'], // 5MB
@@ -125,10 +128,12 @@ class ProjectController extends Controller
                     'name'            => $p['name'],
                     'start_date'      => $p['start_date'],
                     'end_date'        => $p['end_date'],
-                    'desired_percent' => $p['desired_percent'],
+                    'desired_percent' => 0,
                     'created_by'      => auth()->id(),
                 ]);
             }
+
+            ProgressTargetAllocator::rebalance($project);
 
             return $project;
         });
@@ -267,6 +272,8 @@ class ProjectController extends Controller
     /** Detail project */
     public function show(Project $project)
     {
+        $this->authorize('view', $project);
+
         $project->load([
             'progresses' => function ($q) {
                 $q->with([
@@ -544,7 +551,9 @@ class ProjectController extends Controller
     {
         $status = $r->input('status','all');
 
-        $projects = Project::with([
+        $projects = Project::query()
+            ->visibleTo(Auth::user())
+            ->with([
             'digitalBanking:id,name,username',
             'developer:id,name,username',
             'progresses.updates',

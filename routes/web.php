@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Project;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProgressController;
 use App\Http\Controllers\ProgressUpdateController;
@@ -157,6 +158,12 @@ Route::get('/register', [AuthController::class, 'registerForm'])
 Route::post('/register',[AuthController::class,'register']);
 Route::get('/login',[AuthController::class,'loginForm'])->name('login');
 Route::post('/login',[AuthController::class,'login']);
+
+// Password Reset Routes
+Route::get('/password/reset', [PasswordResetController::class, 'showRequestForm'])->name('password.request');
+Route::post('/password/email', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+Route::get('/password/reset/{token}', [PasswordResetController::class, 'showResetForm'])->name('password.reset');
+Route::post('/password/reset', [PasswordResetController::class, 'reset'])->name('password.update');
 
 
 Route::get('/logout', function () {
@@ -338,13 +345,28 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::middleware(['auth'])->group(function () {
-    // Halaman Pengaturan Akun
-    Route::get('/account/settings', [AccountController::class, 'edit'])
+    // Halaman Pengaturan Akun (menu)
+    Route::get('/account/settings', [AccountController::class, 'index'])
         ->name('account.setting');
 
-    // Simpan perubahan
+    // Halaman detail pengaturan
+    Route::get('/account/settings/profile', [AccountController::class, 'editProfile'])
+        ->name('account.setting.profile');
+    Route::get('/account/settings/password', [AccountController::class, 'editPassword'])
+        ->name('account.setting.password');
+
+    // Simpan perubahan profil
     Route::put('/account/settings', [AccountController::class, 'update'])
         ->name('account.update');
+
+    // Change Password
+    Route::post('/account/change-password', [AccountController::class, 'changePassword'])
+        ->name('account.change-password');
+
+    // Backward compatibility URL lama
+    Route::get('/account/setting', function () {
+        return redirect()->route('account.setting');
+    });
 });
 
 
@@ -360,11 +382,6 @@ Route::middleware('auth')->group(function () {
 
     // Halaman “Semua Progress”
     Route::get('progresses', [ProjectController::class, 'progresses'])->name('semua.progresses');
-});
-
-Route::middleware(['auth'])->group(function () {
-    Route::get('/account/setting',  [AccountController::class, 'edit'])->name('account.setting');
-    Route::post('/account/setting', [AccountController::class, 'update'])->name('account.setting.update');
 });
 
 // Tambah lampiran dari IT / DIG

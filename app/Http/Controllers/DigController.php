@@ -12,11 +12,15 @@ class DigController extends Controller
 {
     public function dashboard()
     {
-        $projects = Project::with([
-            'progresses.updates' => fn($q) => $q->orderByDesc('update_date'),
-            'digitalBanking',
-            'developer',
-        ])->latest()->get();
+        $projects = Project::query()
+            ->visibleTo(Auth::user())
+            ->with([
+                'progresses.updates' => fn($q) => $q->orderByDesc('update_date'),
+                'digitalBanking',
+                'developer',
+            ])
+            ->latest()
+            ->get();
 
         // ⬇️ ambil user sesuai role
         $digitalUsers = User::where('role', 'digital_banking')->orderBy('name')->get();
